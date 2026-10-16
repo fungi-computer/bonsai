@@ -1,0 +1,13 @@
+{
+  "name": "koi-pond",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "8.2.2"
+  }
+}

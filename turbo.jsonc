@@ -1,0 +1,25 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    // The checks template test reads Shed's backend declaration and the
+    // Trellis App's templates; the storyboard template test builds Prints'
+    // and Inkcap's method catalogs from their sources; the merge test loads
+    // the celld runtime adapters.
+    "test:unit": {
+      "dependsOn": [
+        "build",
+        "@fungi.computer/shed#build",
+        "@fungi.computer/inkcap#build",
+        "@fungi.computer/prints#build",
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tooling/repository/scripts/{test-file-pool,proof-budget}.{mjs,d.mts}",
+        "$TURBO_ROOT$/.agents/skills/orchestrate-multi-lane-work/scripts/proof-time-bound.sh",
+        "$TURBO_ROOT$/tooling/celld-platform/runtime/**",
+        "$TURBO_ROOT$/apps/trellis/templates/**",
+      ],
+    },
+  },
+}
