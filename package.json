@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/bonsai",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -9,11 +9,11 @@
     "seed:demo": "node --import tsx scripts/seed-demo.mjs"
   },
   "dependencies": {
-    "@fungi.computer/agar": "0.1.0",
-    "@fungi.computer/caps": "0.0.2",
+    "@fungi.computer/agar": "0.2.0",
+    "@fungi.computer/caps": "0.1.0",
     "@fungi.computer/issues": "0.0.1",
-    "@fungi.computer/oyster": "0.1.0",
-    "@fungi.computer/puffball": "0.0.2",
+    "@fungi.computer/oyster": "0.2.0",
+    "@fungi.computer/puffball": "0.1.0",
     "@fungi.computer/stipe": "0.0.1",
     "@pierre/diffs": "1.3.6",
     "@pierre/trees": "1.0.0-beta.6",
@@ -31,7 +31,7 @@
     "@fungi.computer/cairn": "0.0.1",
     "@fungi.computer/maosaico": "0.0.1",
     "@visx/hierarchy": "3.12.0",
-    "@fungi.computer/gills": "0.0.1"
+    "@fungi.computer/gills": "0.1.0"
   },
   "devDependencies": {
     "playwright": "1.62.1",
@@ -47,12 +47,12 @@
     "vitest": "4.1.11",
     "wrangler": "4.135.0",
     "tsx": "4.23.12",
-    "@fungi.computer/braid": "0.0.1",
-    "@fungi.computer/gills": "0.0.1",
+    "@fungi.computer/braid": "0.1.0",
+    "@fungi.computer/gills": "0.1.0",
     "eslint": "10.9.1",
     "oxlint": "1.78.0",
     "jsdom": "29.0.1",
-    "@fungi.computer/computer": "0.0.1",
+    "@fungi.computer/computer": "0.1.0",
     "@tailwindcss/cli": "4.2.1"
   },
   "fungi": {

@@ -1,3 +1,4 @@
+import { resultRows } from "@fungi.computer/agar/method-presentation";
 import { openChangesGill, recentCommitsGill } from "./gills.js";
 import {
   pickerOptionsInput,
@@ -339,6 +340,18 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       requires: [],
       input: z.strictObject({}),
       output: repoPage,
+      present: {
+        rows: resultRows,
+        verb: "listed",
+        row: ({ output }) => ({
+          id: "repos.list",
+          title: `Bonsai listed ${String(output.repos.length)} ${output.repos.length === 1 ? "repository" : "repositories"}`,
+          detail: output.repos
+            .slice(0, 5)
+            .map((repo) => repo.name)
+            .join(" · "),
+        }),
+      },
       handler: (_input, context) => ({
         repos: service.listRepos(context.bonsai),
       }),

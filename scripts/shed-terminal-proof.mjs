@@ -377,16 +377,17 @@ try {
         "The VM Computer fixture's sole Computer is named workspace",
       );
       const nonce = randomBytes(8).toString("hex");
-      // Shed's light prompt is the default surface; `full` escalates one
-      // typed line to the real PTY. Once escalated, ShellPanel unmounts
-      // LightShellPanel — only a PTY exit (never triggered in this proof)
-      // remounts it — so every light-mode check below runs BEFORE the
-      // first `full`, and every later command is typed straight into the
-      // now-visible terminal instead.
-      const prompt = shed.getByRole("textbox", {
-        name: "Shell command",
-        exact: true,
-      });
+      // Shed is one Ghostty terminal whose light prompt is drawn on its
+      // canvas; `full` escalates one typed line to the real PTY in place, and
+      // every later command is typed into the same canvas. Typing goes to
+      // Ghostty's hidden key-capture textarea, which a click on the canvas
+      // focuses.
+      const canvas = shed.locator(".terminal-host canvas");
+      const typeLine = async (line) => {
+        await canvas.click();
+        await page.keyboard.type(line);
+        await page.keyboard.press("Enter");
+      };
       const receivedBytes = () =>
         Buffer.concat(received.filter((frame) => Buffer.isBuffer(frame)));
       const sentBytesLength = () =>
@@ -404,14 +405,15 @@ try {
           runCommandCalls.push(request.postDataJSON());
       });
       const beforeLightInput = sentBytesLength();
-      await prompt.click();
-      await prompt.fill("pwd");
-      await prompt.press("Enter");
+      await typeLine("pwd");
       await expect
-        .poll(() => runCommandCalls.some((call) => call.command === "pwd"), {
-          message: "A light command calls Shed's runCommand method",
-          timeout: 30_000,
-        })
+        .poll(
+          () => runCommandCalls.some((call) => call.command.endsWith("; pwd")),
+          {
+            message: "A light command calls Shed's runCommand method",
+            timeout: 30_000,
+          },
+        )
         .toBe(true);
       assert.equal(
         sentBytesLength(),
@@ -420,9 +422,7 @@ try {
       );
 
       const marker = `oyster-${nonce}-command`;
-      await prompt.click();
-      await prompt.fill(`full printf 'oyster-%s-command\\n' '${nonce}'`);
-      await prompt.press("Enter");
+      await typeLine(`full printf 'oyster-%s-command\\n' '${nonce}'`);
       await expect
         .poll(() => receivedBytes().includes(marker), {
           message: "A real shell command returns through Shed's terminal",

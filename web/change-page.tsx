@@ -14,7 +14,6 @@ import {
 } from "@fungi.computer/caps/components/data-list";
 import { InlineCode } from "@fungi.computer/caps/components/inline-code";
 import { Status } from "@fungi.computer/caps/components/status";
-import { StatusLed } from "@fungi.computer/caps/components/field-guide";
 import type { MergeResult, PolicyDecision } from "../shared/contract.js";
 import {
   useAgents,
@@ -569,14 +568,19 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <StatusLed
-                          active={check.status !== "queued"}
+                        <Status
+                          size="compact"
                           tone={
                             check.status === "passed"
-                              ? "fruiting"
+                              ? "success"
                               : check.status === "failed"
-                                ? "spore"
-                                : "mycelium"
+                                ? "error"
+                                : check.status === "running"
+                                  ? "info"
+                                  : "neutral"
+                          }
+                          motion={
+                            check.status === "running" ? "bounce" : "none"
                           }
                           label={check.status}
                         />
