@@ -139,7 +139,7 @@ export function RepoSettings({ repo }: { repo: string }) {
           )}
         </CardContent>
       </Card>
-      <AppBuildPanel />
+      <AppBuildPanel key={repo} repo={repo} />
     </div>
   );
 }

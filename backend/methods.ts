@@ -1,3 +1,13 @@
+import {
+  runReply,
+  statusReply,
+  runsReplySchema,
+} from "@fungi.computer/workflows-wire";
+import {
+  startManualBuildWorkflow,
+  readBuildWorkflowRuns,
+  type BuildWorkflowBindings,
+} from "./build-workflow.js";
 import { resultRows } from "@fungi.computer/agar/method-presentation";
 import { openChangesGill, recentCommitsGill } from "./gills.js";
 import {
@@ -35,6 +45,8 @@ import {
 } from "@fungi.computer/agar/backend-definition";
 import type { AppMethodCallContext } from "@fungi.computer/puffball/app-method-runtime";
 import * as z from "zod";
+import * as S from "effect/Schema";
+import { releaseSchema } from "@fungi.computer/puffball/effect";
 import {
   gitSha1Schema,
   gitRepositoryNameSchema,
@@ -42,6 +54,10 @@ import {
 import {
   activityPage,
   appBuildView,
+  appBuildWorkflowInput,
+  appBuildStatusInput,
+  appRegistrationInput,
+  appRegistration,
   approvalResult,
   checkRequestResult,
   checkReportResult,
@@ -102,6 +118,9 @@ export type AppsBindingReply = Readonly<{
 
 /** The host `APPS` binding: fork a source, build it, and install a Release. */
 export type BonsaiAppsBinding = Readonly<{
+  register(
+    input: z.infer<typeof appRegistrationInput>,
+  ): Promise<AppsBindingReply>;
   fork(input: {
     platformAppId: string;
     name: string;
@@ -109,9 +128,13 @@ export type BonsaiAppsBinding = Readonly<{
   build(input: {
     appId: string;
     sourceRevision: string;
+    installationId?: string;
   }): Promise<AppsBindingReply>;
-  buildStatus(input: { jobId: string }): Promise<AppsBindingReply>;
+  buildStatus(
+    input: z.infer<typeof appBuildStatusInput>,
+  ): Promise<AppsBindingReply>;
   select(input: {
+    jobId: string;
     installationId: string;
     release: unknown;
   }): Promise<AppsBindingReply>;
@@ -120,10 +143,11 @@ export type BonsaiAppsBinding = Readonly<{
 /** What a Bonsai method runs against: the facet supplies it. */
 type BonsaiMethodContext = Readonly<{
   bonsai: Bonsai;
-  env?: Readonly<{
-    BACKGROUND?: BackgroundBinding;
-    APPS?: BonsaiAppsBinding;
-  }>;
+  env?: BuildWorkflowBindings &
+    Readonly<{
+      BACKGROUND?: BackgroundBinding;
+      APPS?: BonsaiAppsBinding;
+    }>;
 }>;
 
 const bindingErrorBody = z.object({ error: z.string() });
@@ -133,13 +157,15 @@ function refuseBindingReply(reply: AppsBindingReply): never {
   const parsed = bindingErrorBody.safeParse(reply.body);
   const message = parsed.success ? parsed.data.error : "Request refused";
   throw new AppMethodRefusal(
-    reply.status === 404
-      ? "not_found"
-      : reply.status === 409
-        ? "conflict"
-        : reply.status === 403
-          ? "forbidden"
-          : "invalid",
+    reply.status >= 500
+      ? "unavailable"
+      : reply.status === 404
+        ? "not_found"
+        : reply.status === 409
+          ? "conflict"
+          : reply.status === 403
+            ? "forbidden"
+            : "invalid",
     message,
   );
 }
@@ -220,6 +246,72 @@ const definition = defineAppBackend<BonsaiMethodContext>({
     },
   },
   methods: {
+    "apps.register": defineAppMethod({
+      description:
+        "Make this repository an App using its main commit's package.json build recipe. Owner only; does not build or install it.",
+      effect: "write",
+      requires: ["git.repository"],
+      input: appRegistrationInput,
+      output: appRegistration,
+      handler: async (input, context: BonsaiMethodContext, caller) => {
+        if (caller.role !== "owner")
+          throw new AppMethodRefusal("forbidden", "Owner only");
+        if (!context.env?.APPS)
+          throw new AppMethodRefusal(
+            "unavailable",
+            "App registration is unavailable",
+          );
+        const reply = await context.env.APPS.register(input);
+        if (reply.status >= 400) refuseBindingReply(reply);
+        return appRegistration.parse(reply.body);
+      },
+    }),
+    "apps.startBuildWorkflow": defineAppMethod({
+      description:
+        "Build, verify and install this repository through the published Workflow. Owner only.",
+      effect: "write",
+      requires: ["git.repository", "workflow.run", "workflow.publish"],
+      input: appBuildWorkflowInput,
+      output: runReply,
+      handler: (input, context: BonsaiMethodContext, caller) => {
+        if (caller.role !== "owner")
+          throw new AppMethodRefusal("forbidden", "Owner only");
+        return startManualBuildWorkflow(context.env ?? {}, input);
+      },
+    }),
+    "apps.buildWorkflowRuns": defineAppMethod({
+      description:
+        "Discover up to fifty runs of this installation's build Workflow, including accepted main pushes. Read-only; owner only.",
+      effect: "read",
+      requires: ["workflow.run"],
+      input: z.strictObject({}),
+      output: runsReplySchema,
+      handler: (_input, context: BonsaiMethodContext, caller) => {
+        if (caller.role !== "owner")
+          throw new AppMethodRefusal("forbidden", "Owner only");
+        return readBuildWorkflowRuns(context.env ?? {});
+      },
+    }),
+    "apps.buildWorkflowRun": defineAppMethod({
+      description:
+        "Read this installation's build Workflow and its recorded step results. Owner only.",
+      effect: "read",
+      requires: ["workflow.run"],
+      input: z.strictObject({ runId: z.string().min(1).max(256) }),
+      output: statusReply,
+      handler: async (input, context: BonsaiMethodContext, caller) => {
+        if (caller.role !== "owner")
+          throw new AppMethodRefusal("forbidden", "Owner only");
+        if (context.env?.WORKFLOWS === undefined)
+          throw new AppMethodRefusal(
+            "unavailable",
+            "Workflow access is not granted",
+          );
+        return statusReply.parse(
+          await context.env.WORKFLOWS.graphStatus(input),
+        );
+      },
+    }),
     "apps.build": defineAppMethod({
       description:
         "Build an App's registered source at one exact commit on this Oyster's Computer; the job keeps running after this call returns. Owner only.",
@@ -230,28 +322,44 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       input: z.strictObject({
         appId: z.string().min(1).max(256),
         sourceRevision: z.string().min(1).max(256),
+        installationId: z.string().min(1).max(256).optional(),
       }),
       output: appBuildView,
+      present: {
+        rows: resultRows,
+        verb: "started",
+        row: ({ output }) => ({
+          id: output.jobId,
+          title: "Build " + output.status,
+          detail: output.sourceRevision,
+        }),
+      },
       handler: async (input, context: BonsaiMethodContext, caller) => {
         if (caller.role !== "owner")
           throw new AppMethodRefusal("forbidden", "Owner only");
         if (!context.env?.APPS)
           throw new AppMethodRefusal("unavailable", "Build is unavailable");
-        const reply = await context.env.APPS.build(input);
+        const request: Parameters<BonsaiAppsBinding["build"]>[0] = {
+          appId: input.appId,
+          sourceRevision: input.sourceRevision,
+        };
+        if (input.installationId !== undefined)
+          request.installationId = input.installationId;
+        const reply = await context.env.APPS.build(request);
         if (reply.status >= 400) refuseBindingReply(reply);
         return appBuildView.parse(reply.body);
       },
     }),
     "apps.buildStatus": defineAppMethod({
       description:
-        "Wait for one build job: Pending while it runs, then its settled status and Release. Owner only.",
+        "Read one build job or discover this repository's latest job. Pending until build and automatic installation settle. Owner only.",
       effect: "read",
       // The host grants its APPS operation only under these approvals.
       requires: ["git.repository", "computer.execute"],
       // A Workflow step waits on the job by polling this same call.
       pending: true,
-      input: z.strictObject({ jobId: z.string().min(1).max(256) }),
-      output: appBuildView,
+      input: appBuildStatusInput,
+      output: appBuildView.nullable(),
       handler: async (input, context: BonsaiMethodContext, caller) => {
         if (caller.role !== "owner")
           throw new AppMethodRefusal("forbidden", "Owner only");
@@ -259,27 +367,104 @@ const definition = defineAppBackend<BonsaiMethodContext>({
           throw new AppMethodRefusal("unavailable", "Build is unavailable");
         const reply = await context.env.APPS.buildStatus(input);
         if (reply.status >= 400) refuseBindingReply(reply);
-        const build = appBuildView.parse(reply.body);
-        return build.status === "running" ? pending(5_000) : build;
+        const build = appBuildView.nullable().parse(reply.body);
+        if (build === null) return null;
+        return build.status === "running" ||
+          (build.status === "succeeded" &&
+            build.installation?.kind === "pending")
+          ? pending(5_000)
+          : build;
+      },
+    }),
+    "apps.verifyBuild": defineAppMethod({
+      description:
+        "Wait for the build's boot gate and verify that its Release is the exact requested commit. A failed or mismatched build never installs.",
+      effect: "read",
+      requires: ["git.repository", "computer.execute"],
+      pending: true,
+      input: z.strictObject({
+        jobId: z.string().min(1).max(256),
+        sourceRevision: z.string().regex(/^git:[0-9a-f]{40}$/),
+      }),
+      output: z.strictObject({
+        release: z.unknown(),
+        summary: z.string().max(4000),
+      }),
+      present: {
+        rows: resultRows,
+        verb: "verified",
+        row: ({ output }) => ({
+          id: "apps.verifyBuild",
+          title: "Release verified",
+          detail: output.summary,
+        }),
+      },
+      handler: async (input, context: BonsaiMethodContext, caller) => {
+        if (caller.role !== "owner")
+          throw new AppMethodRefusal("forbidden", "Owner only");
+        if (!context.env?.APPS)
+          throw new AppMethodRefusal("unavailable", "Build is unavailable");
+        const reply = await context.env.APPS.buildStatus({
+          jobId: input.jobId,
+        });
+        if (reply.status >= 400) refuseBindingReply(reply);
+        const build = appBuildView.nullable().parse(reply.body);
+        if (build === null)
+          throw new AppMethodRefusal("not_found", "Build not found");
+        if (build.status === "running") return pending(5_000);
+        if (build.status !== "succeeded" || build.release === null)
+          throw new AppMethodRefusal(
+            "invalid",
+            "The build did not pass" +
+              (build.detail === null ? "" : ": " + build.detail.slice(-2000)),
+          );
+        const release = S.decodeUnknownSync(releaseSchema)(build.release);
+        if (release.artifact.provenance.sourceRevision !== input.sourceRevision)
+          throw new AppMethodRefusal(
+            "invalid",
+            "The build's Release is not the requested commit",
+          );
+        return {
+          release,
+          summary:
+            "Built " +
+            release.releaseId +
+            " of " +
+            release.appId +
+            " from " +
+            input.sourceRevision,
+        };
       },
     }),
     "apps.install": defineAppMethod({
       description:
         "Install a built Release at an installation id, or switch an already-live one onto it. Owner only.",
       effect: "write",
+      pending: true,
       // The host grants its APPS operation only under these approvals.
       requires: ["git.repository", "computer.execute"],
       input: z.strictObject({
+        jobId: z.string().min(1).max(256),
         installationId: z.string().min(1).max(256),
         release: z.unknown(),
       }),
       output: z.unknown(),
+      present: {
+        rows: resultRows,
+        verb: "installed",
+        row: ({ input }) => ({
+          id: "apps.install",
+          title: "Release installed",
+          detail: input.installationId,
+        }),
+      },
       handler: async (input, context: BonsaiMethodContext, caller) => {
         if (caller.role !== "owner")
           throw new AppMethodRefusal("forbidden", "Owner only");
         if (!context.env?.APPS)
           throw new AppMethodRefusal("unavailable", "Install is unavailable");
         const reply = await context.env.APPS.select(input);
+        if (reply.status === 202) return pending(5000);
         if (reply.status >= 400) refuseBindingReply(reply);
         return reply.body;
       },
@@ -697,7 +882,12 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       effect: "write",
       // The continuation covers every write's requirements (apps.build's
       // computer.execute included); it only replays queued Git writes.
-      requires: ["git.repository", "computer.execute"],
+      requires: [
+        "git.repository",
+        "computer.execute",
+        "workflow.run",
+        "workflow.publish",
+      ],
       input: z.strictObject({}),
       output: z.strictObject({ more: z.boolean() }),
       handler: (_input, context, caller) =>

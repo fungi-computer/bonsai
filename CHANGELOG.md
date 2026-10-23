@@ -1,5 +1,71 @@
 # @fungi.computer/bonsai
 
+## 0.2.0
+
+### Minor Changes
+
+- Changes since 0.1.0:
+
+  - fix(oyster): keep Stage out of the starter release
+  - fix(shed): compact the model-facing command reply
+  - refactor(shed): send Workflow Git commands without any credential
+  - feat: show the Fungi sigil in the Bonsai and Tourtois tab
+  - fix(bonsai,oyster)!: share the repository App source wire through
+    workflows-wire
+  - fix(oyster,bonsai): export the types public signatures use
+  - refactor(bonsai): share authoring browser fixtures
+  - test(bonsai): follow Workflow-only Settings authoring
+  - fix(authoring): preserve Workflow refusals across lifecycle and native RPC
+  - Revert "fix(bonsai): remove impossible local App release command"
+  - fix(bonsai): remove impossible local App release command
+  - chore(b3a): checkpoint native workflow consumers and shared renderer types
+  - fix(b3a): align template and native proof consumers
+  - chore(b3a): checkpoint manual workflow integration
+  - refactor: move repository installation into Workflow nodes
+  - feat(apps): discover repository builds and install local Releases
+  - feat(apps): retain typed build installation outcomes in Settings
+  - test(apps): prove honest build refusals through host and Settings
+  - feat(bonsai): add repository App registration method and settings action
+  - fix(bonsai): clean up HTTPS Git fixture certificates
+  - feat(oyster): derive App build recipes from package metadata
+  - refactor(oyster)!: move the shell client into @fungi.computer/nacre
+  - refactor(computer)!: move the operation contract into computer-contract
+  - feat(oyster): add stage to the starter apps
+  - feat(oyster): public release 0.2.0
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.3.0
+  - @fungi.computer/braid@0.2.0
+  - @fungi.computer/cairn@0.1.0
+  - @fungi.computer/caps@0.2.0
+  - @fungi.computer/gills@0.2.0
+  - @fungi.computer/issues@0.1.0
+  - @fungi.computer/maosaico@0.1.0
+  - @fungi.computer/nacre@0.0.1
+  - @fungi.computer/oyster@0.3.0
+  - @fungi.computer/puffball@0.2.0
+  - @fungi.computer/sigils@0.2.0
+  - @fungi.computer/stipe@0.1.0
+  - @fungi.computer/trellis@0.2.0
+  - @fungi.computer/watchdog@0.1.0
+  - @fungi.computer/workflows-wire@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

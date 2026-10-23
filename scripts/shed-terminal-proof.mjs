@@ -20,7 +20,7 @@ import * as z from "zod";
 import { installRelease } from "@fungi.computer/oyster/pack";
 import { parseSourceRevision } from "@fungi.computer/puffball";
 import { releaseSchema } from "@fungi.computer/puffball/effect";
-import { workbenchDirectorySchema } from "@fungi.computer/oyster/shell/workbench-directory";
+import { workbenchDirectorySchema } from "@fungi.computer/nacre/workbench-directory";
 
 const [packedDirectory, expectedRevision, tourtoisDirectory, tourtoisRevision] =
   z
@@ -227,11 +227,13 @@ try {
     "The unchanged Shed backend runs a native command",
   );
   const result = await command.json();
-  assert.equal(result.status, "succeeded");
-  assert.equal(result.output.status, "completed");
-  assert.equal(result.output.stdout, "standalone-shed-terminal");
-  assert.equal(result.output.stderr, "");
-  assert.equal(result.output.exitCode, 0);
+  assert.deepEqual(result, {
+    stdout: "standalone-shed-terminal",
+    stderr: "",
+    exitCode: 0,
+    stdoutTruncated: false,
+    stderrTruncated: false,
+  });
 
   const directoryResponse = await globalThis.fetch(
     `${origin}/api/workbench/directory`,
@@ -568,8 +570,8 @@ try {
       // Tourtois window chrome, not Shed's own light/full prompt, so they
       // work the same escalated or not.
       // Port 8099, not 8080: 8080 is computerDaemonPort, computerd's own
-      // reserved control-plane port (packages/computer/src/
-      // operation-contract.ts); starting a demo process there throws
+      // reserved control-plane port (packages/computer-contract/src/
+      // index.ts); starting a demo process there throws
       // ComputerPortReservedError, confirmed against the real VM.
       //
       // Not python3 -m http.server: packages/computer/Dockerfile only

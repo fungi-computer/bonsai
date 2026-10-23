@@ -112,9 +112,10 @@ retried after 10 s, 1 min, 5 min, 30 min and 2 h;
 
 Bonsai also edits the other Apps on your Oyster. `apps.fork` copies an installed
 App's source into a new Bonsai repository you own. Push your changes to it, then
-open the repository's **Settings** and use **Build & install**: Oyster builds
-that exact commit on your Computer and installs the Release, or switches a live
-installation onto it while keeping its data. To fork Bonsai itself:
+open the repository's **Settings** and use **Build & install**: the retained
+Workflow builds that exact commit on a hosted Computer, verifies its Release,
+and installs it or switches a live installation while keeping its data. To fork
+Bonsai itself:
 
 ```sh
 curl -X POST -H "Authorization: Bearer $OYSTER_OWNER_KEY" -H 'content-type: application/json' \
@@ -129,6 +130,59 @@ your forks with `--repositories <base URL>` and `--ref <branch or tag>`. The
 installer reads all seven starter Apps from that base, so fork them under one
 account.
 
+## Make a repository an App
+
+On a standalone Oyster, open the repository's **Settings → Make this an App**.
+The owner-only `apps.register({ repo })` call reads the committed main root's
+`package.json` through Oyster's shared manifest reader. The App owns its
+`fungi.appId` identity and `fungi.build` recipe; a registered fork keeps its own
+identity. Registration neither builds nor installs and never selects or starts a
+Computer. Caller-supplied identities, recipes and source installations are not
+registration inputs.
+
+**Build & install** fills the readonly App ID and editable revision/name from
+registration or the latest recorded job. Accepted main pushes and merges use the
+host's accepted-ref journal, not a trusted App merge payload, to build the exact
+commit on a hosted backend. A failed build leaves the running Release unchanged.
+Automatic installation reuses approval only: new permissions show **Needs owner
+consent** without switching Releases or offering a misleading install button.
+
+The explicit owner button calls `apps.startBuildWorkflow` with the repository,
+revision, installation name and a replay key. It starts the same published
+build/verify/install definition as accepted main pushes; the panel does not call
+`apps.build` or `apps.install` separately. `apps.buildWorkflowRun({ runId })`
+reads its recorded steps for the shared Trellis cards. To discover automatic
+runs without a browser-held ID, the owner can call `apps.buildWorkflowRuns({})`:
+it reads at most fifty stock build Workflow runs from this installation's
+`WORKFLOWS.runs` door. Neither read starts work or maintains a trigger ledger.
+
+Settings discovers job status by `apps.buildStatus({ repo })` after reload; no
+remembered browser job ID is required. No recorded job returns `null`, not an
+invented success or failure. Workflows still poll their specific job with
+`apps.buildStatus({ jobId })`; that call is Pending until build and automatic
+installation settle. These are two current selectors for different callers. A
+local-only Computer is not a build backend and returns typed `no_backend`. This
+flow does not deploy a host or implement a separate consent ledger.
+
+The retained Trellis **Build on merge** template is requested through the
+Workflows capability by Bonsai's host-attested accepted-main lifecycle, with the
+registered App identity and the exact accepted head. Its verification step is
+**apps.verifyBuild({ jobId, sourceRevision })**: it waits only for the build,
+not for installation, then returns the canonically decoded Release only if its
+provenance matches. Build, verification and install each declare a result card.
+The template has no review configuration or review step; installation requires
+the Workflow's authority, not an App-origin installation exception.
+
+**Breaking declaration contract:** Bonsai declares **WORKFLOWS.catalog**,
+**WORKFLOWS.runGraph**, **WORKFLOWS.graphStatus**, **WORKFLOWS.runs**, Workflow
+run/publication capabilities and **APPS.repository**. The latter is a read-only
+lookup for the owner action or **onGitPush**, scoped to the live calling
+installation; it neither registers a source nor selects a Computer. The retained
+runGraph compiler requires catalog permission and reads the Apps bound by the
+request; Bonsai declares that read operation rather than bypassing the host's
+check. Updated declarations must go through the ordinary owner-consent path. Old
+App-origin installation remains refused.
+
 ## Agent tools
 
 Every method is `POST $OYSTER_URL/apps/bonsai/methods/<name>` with a JSON body
@@ -136,15 +190,15 @@ and a key, and the same methods reach agents through Oyster's MCP endpoint; see
 [Git, keys and MCP](https://github.com/fungi-computer/oyster#git-keys-and-mcp).
 Bonsai's own UI uses the same API.
 
-| Area         | Methods                                                                                                    |
-| ------------ | ---------------------------------------------------------------------------------------------------------- |
-| Repositories | `repos.list`, `repos.get`, `repos.create`, `repos.fork`, `repos.delete`, `branches.options`                |
-| Files        | `files.tree`, `files.list`, `files.read`, `files.save`, `files.sync`, `files.discard`, `issues.read`       |
-| History      | `commits.list`, `commits.get`, `graph.get`, `activity.list`, `actors.list`                                 |
-| Changes      | `changes.list`, `changes.get`, `changes.open`, `changes.approve`, `changes.merge`, `changes.close`, `sync` |
-| Checks       | `checks.request`, `checks.report`                                                                          |
-| Insights     | `insights.code`, `insights.layout.get`, `insights.layout.save`                                             |
-| Apps (owner) | `apps.fork`, `apps.build`, `apps.buildStatus`, `apps.install`                                              |
+| Area         | Methods                                                                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repositories | `repos.list`, `repos.get`, `repos.create`, `repos.fork`, `repos.delete`, `branches.options`                                                                                      |
+| Files        | `files.tree`, `files.list`, `files.read`, `files.save`, `files.sync`, `files.discard`, `issues.read`                                                                             |
+| History      | `commits.list`, `commits.get`, `graph.get`, `activity.list`, `actors.list`                                                                                                       |
+| Changes      | `changes.list`, `changes.get`, `changes.open`, `changes.approve`, `changes.merge`, `changes.close`, `sync`                                                                       |
+| Checks       | `checks.request`, `checks.report`                                                                                                                                                |
+| Insights     | `insights.code`, `insights.layout.get`, `insights.layout.save`                                                                                                                   |
+| Apps (owner) | `apps.register`, `apps.fork`, `apps.startBuildWorkflow`, `apps.buildWorkflowRuns`, `apps.buildWorkflowRun`, `apps.build`, `apps.buildStatus`, `apps.verifyBuild`, `apps.install` |
 
 ## How it is built
 

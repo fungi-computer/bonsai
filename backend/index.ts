@@ -32,15 +32,20 @@ import type {
   BackgroundBinding,
 } from "@fungi.computer/puffball/background-replay";
 import { refuseBackground } from "./background.js";
+import {
+  startBuildWorkflow,
+  type BuildWorkflowBindings,
+} from "./build-workflow.js";
 
 /** The bindings the host grants Bonsai (see the Oyster binding proposal). */
-export type BonsaiEnv = Readonly<{
-  GIT: GitBinding;
-  EVENTS: EventSink;
-  BACKGROUND?: BackgroundBinding;
-  /** Fork, build and install Apps; present only on a host that supplies it. */
-  APPS?: BonsaiAppsBinding;
-}>;
+export type BonsaiEnv = BuildWorkflowBindings &
+  Readonly<{
+    GIT: GitBinding;
+    EVENTS: EventSink;
+    BACKGROUND?: BackgroundBinding;
+    /** Fork, build and install Apps; present only on a host that supplies it. */
+    APPS?: BonsaiAppsBinding;
+  }>;
 
 const uiRequest = z.strictObject({
   method: z.string().min(1).max(80),
@@ -88,6 +93,7 @@ class BonsaiFacet extends DurableObject<BonsaiEnv> {
 
   async onGitPush(fact: AppGitPushFact): Promise<void> {
     await observePush(this.bonsai, fact);
+    await startBuildWorkflow(this.env, fact);
   }
 
   authorizeGitPush(raw: GitPushQuestion): Promise<GitPushVerdict> {

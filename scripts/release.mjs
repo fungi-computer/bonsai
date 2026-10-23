@@ -9,6 +9,10 @@ import process from "node:process";
 import { log } from "node:console";
 import { installRelease, packRelease } from "@fungi.computer/oyster/pack";
 import { standaloneAppSet } from "@fungi.computer/oyster/standalone/app-set";
+import {
+  appBuildRecipe,
+  readBuildManifest,
+} from "@fungi.computer/oyster/build";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
@@ -22,6 +26,13 @@ const revision = execFileSync("git", ["rev-parse", "HEAD"], {
 }).trim();
 const bonsai = standaloneAppSet.find((app) => app.installationId === "bonsai");
 if (!bonsai) throw new Error("The standalone App set must include Bonsai");
+const manifest = readBuildManifest(
+  execFileSync(
+    "git",
+    ["show", revision + ":" + bonsai.directory + "/package.json"],
+    { cwd: repository, encoding: "utf8" },
+  ),
+);
 const stamp = Date.now().toString(36);
 const outDirectory = `${root}.botanical/release`;
 
@@ -34,7 +45,7 @@ await packRelease({
     cwd: repository,
     encoding: "utf8",
   }).trim(),
-  recipe: bonsai.recipe,
+  recipe: appBuildRecipe(manifest, bonsai.directory),
   outDirectory,
 });
 

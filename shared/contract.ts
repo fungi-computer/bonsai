@@ -12,6 +12,15 @@ import { commit } from "@fungi.computer/agar/roles/files";
 
 export const productName = "Bonsai";
 
+/** An explicit owner action starts the same published build/install Workflow. */
+export const appBuildWorkflowInput = z.strictObject({
+  repo: repoName,
+  sourceRevision: z.string().min(1).max(256),
+  installationId: z.string().min(1).max(256),
+  requestId: z.string().min(1).max(256),
+});
+export type AppBuildWorkflowInput = z.infer<typeof appBuildWorkflowInput>;
+
 /** Any JSON value: App method inputs and results travel as JSON. */
 export const jsonValue = z.json();
 export type JsonValue = z.infer<typeof jsonValue>;
@@ -389,6 +398,22 @@ export const issueFiles = z.strictObject({
 export type IssueFiles = z.infer<typeof issueFiles>;
 export const repoPage = z.strictObject({ repos: z.array(repoSummary) });
 
+/** The host's install decision on this build, not a consent request. */
+const appBuildInstallation = z.discriminatedUnion("kind", [
+  z.strictObject({ kind: z.literal("pending"), installationId: z.string() }),
+  z.strictObject({ kind: z.literal("installed"), installationId: z.string() }),
+  z.strictObject({
+    kind: z.literal("needs_consent"),
+    installationId: z.string(),
+  }),
+  z.strictObject({
+    kind: z.literal("failed"),
+    installationId: z.string(),
+    detail: z.string(),
+  }),
+]);
+export type AppBuildInstallation = z.infer<typeof appBuildInstallation>;
+
 /** One App build job as its owner sees it; a settled success carries its Release. */
 export const appBuildView = z.strictObject({
   jobId: z.string().min(1).max(256),
@@ -399,6 +424,22 @@ export const appBuildView = z.strictObject({
   detail: z.string().max(65_536).nullable(),
   /** The recorded Release, parsed by its owner where it is installed. */
   release: z.unknown(),
+  installation: appBuildInstallation.nullable(),
+});
+
+/** Register the calling installation's repository, never a caller-supplied recipe. */
+export const appRegistrationInput = z.strictObject({ repo: repoName });
+
+/** Workflows wait for one job; Settings discovers its repository's latest job. */
+export const appBuildStatusInput = z.union([
+  z.strictObject({ jobId: z.string().min(1).max(256) }),
+  appRegistrationInput,
+]);
+
+/** The host's App identity and exact main commit whose metadata it registered. */
+export const appRegistration = appBuildView.pick({
+  appId: true,
+  sourceRevision: true,
 });
 
 export const errorBody = z.strictObject({ error: z.string() });
