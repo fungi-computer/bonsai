@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/bonsai",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -12,7 +12,7 @@
     "@fungi.computer/agar": "0.3.1",
     "@fungi.computer/caps": "0.3.0",
     "@fungi.computer/issues": "0.2.0",
-    "@fungi.computer/oyster": "0.4.0",
+    "@fungi.computer/oyster": "0.4.1",
     "@fungi.computer/puffball": "0.2.0",
     "@fungi.computer/sigils": "0.2.0",
     "@fungi.computer/stipe": "0.1.0",
@@ -34,7 +34,7 @@
     "@visx/hierarchy": "3.12.0",
     "@fungi.computer/gills": "0.2.0",
     "@fungi.computer/nacre": "0.0.2",
-    "@fungi.computer/trellis": "0.2.2",
+    "@fungi.computer/trellis": "0.2.3",
     "@fungi.computer/braid": "0.2.2",
     "@fungi.computer/workflows-wire": "0.2.2"
   },

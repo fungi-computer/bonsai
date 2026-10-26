@@ -1,5 +1,19 @@
 # @fungi.computer/bonsai
 
+## 0.2.4
+
+### Patch Changes
+
+- Changes since 0.2.3:
+
+  - fix(oyster): ship starter dependencies and continue failed installs
+  - fix(oyster): bound builder failures and interrupt lost builds
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/oyster@0.4.1
+  - @fungi.computer/trellis@0.2.3
+
 ## 0.2.3
 
 ### Patch Changes

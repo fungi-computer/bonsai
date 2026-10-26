@@ -420,7 +420,7 @@ export const appBuildView = z.strictObject({
   appId: z.string().min(1).max(256),
   releaseId: z.string().min(1).max(256),
   sourceRevision: z.string().min(1).max(256),
-  status: z.enum(["running", "succeeded", "failed", "revoked"]),
+  status: z.enum(["running", "succeeded", "failed", "interrupted", "revoked"]),
   detail: z.string().max(65_536).nullable(),
   /** The recorded Release, parsed by its owner where it is installed. */
   release: z.unknown(),

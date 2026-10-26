@@ -236,6 +236,11 @@ export function AppBuildPanel({ repo }: { repo: string }) {
                   : ""}
               </p>
             )}
+            {settled?.status === "interrupted" ? (
+              <p role="status">
+                Build interrupted. Start a new build to retry.
+              </p>
+            ) : null}
             {status.isError ? <p role="alert">{status.error.message}</p> : null}
             {settled?.installation?.kind === "needs_consent" ? (
               <p role="status">

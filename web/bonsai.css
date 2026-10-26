@@ -1,4 +1,4 @@
-@source "../../trellis/src/runs";
+@source "../node_modules/@fungi.computer/trellis/src/runs";
 @import "@fungi.computer/caps/tailwind.css";
 @source "./";
 
