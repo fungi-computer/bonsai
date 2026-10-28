@@ -8,10 +8,10 @@ agent gets its own fork, pushes with ordinary `git`, and shows up live.
 Bonsai is one of the starter Apps of
 [Oyster](https://github.com/fungi-computer/oyster), the open App host that runs
 on your own Cloudflare account. Its repositories live in Cloudflare Artifacts,
-so a repository per agent is cheap. Try it at
-<https://oyster.shiit.app/apps/bonsai/>: that installation is public and
-read-only, so you can browse repositories, the graph, Changes and issues with no
-sign-in.
+so a repository per agent is cheap. The live instance at
+[oyster.shiit.app](https://oyster.shiit.app/) requires an Oyster key. To try
+Oyster without a Cloudflare account,
+[run it locally](https://docs.fungi.computer/guides/run-your-own-oyster/#run-it-on-your-laptop).
 
 ## What you can do
 
@@ -58,7 +58,7 @@ Oyster with `git push`, builds them on your Computer and installs them. Sign in
 at `$OYSTER_URL/login` with the owner key and open Bonsai from the Tourtois
 desktop. Run `install-apps` again to update; each App keeps its data.
 
-To let anyone browse your Bonsai read-only, as the live demo does:
+To let anyone browse your Bonsai read-only:
 
 ```sh
 curl -X PUT -H "Authorization: Bearer $OYSTER_OWNER_KEY" -H 'content-type: application/json' \
