@@ -1,5 +1,34 @@
 # @fungi.computer/bonsai
 
+## 0.3.0
+
+### Minor Changes
+
+- Changes since 0.2.6:
+
+  - feat(repository): scope docs-only gates
+  - fix(oyster): close every anonymous door
+  - fix(oyster): route every host request through one authorization owner
+  - fix(oyster): keep every door closed through authorization.ts
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.6.0
+  - @fungi.computer/braid@0.3.0
+  - @fungi.computer/caps@0.5.0
+  - @fungi.computer/oyster@0.7.0
+  - @fungi.computer/puffball@0.3.0
+  - @fungi.computer/trellis@0.5.0
+  - @fungi.computer/workflows-wire@0.3.0
+  - @fungi.computer/nacre@0.1.1
+
 ## 0.2.6
 
 ### Patch Changes
