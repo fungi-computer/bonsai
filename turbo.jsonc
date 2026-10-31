@@ -16,7 +16,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/tooling/repository/scripts/{test-file-pool,proof-budget}.{mjs,d.mts}",
-        "$TURBO_ROOT$/.agents/skills/orchestrate-multi-lane-work/scripts/proof-time-bound.sh",
+        "$TURBO_ROOT$/tooling/proof-runner/proof-time-bound.sh",
         "$TURBO_ROOT$/tooling/celld-platform/runtime/**",
         "$TURBO_ROOT$/apps/trellis/templates/**",
         "!$TURBO_ROOT$/apps/docs/release-claims/**",
