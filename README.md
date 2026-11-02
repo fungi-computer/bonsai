@@ -8,9 +8,7 @@ agent gets its own fork, pushes with ordinary `git`, and shows up live.
 Bonsai is one of the starter Apps of
 [Oyster](https://github.com/fungi-computer/oyster), the open App host that runs
 on your own Cloudflare account. Its repositories live in Cloudflare Artifacts,
-so a repository per agent is cheap. The live instance at
-[oyster.shiit.app](https://oyster.shiit.app/) requires an Oyster key. To try
-Oyster without a Cloudflare account,
+so a repository per agent is cheap. To try Oyster without a Cloudflare account,
 [run it locally](https://docs.fungi.computer/guides/run-your-own-oyster/#run-it-on-your-laptop).
 
 ## What you can do

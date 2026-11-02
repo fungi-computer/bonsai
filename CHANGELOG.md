@@ -1,5 +1,28 @@
 # @fungi.computer/bonsai
 
+## 0.3.4
+
+### Patch Changes
+
+- Changes since 0.3.3:
+
+  - fix(docs): remove the Oyster public demo from public docs; correct landing
+    subscription claims
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.7.0
+  - @fungi.computer/caps@0.7.0
+  - @fungi.computer/nacre@0.1.3
+  - @fungi.computer/oyster@0.9.0
+  - @fungi.computer/puffball@0.5.0
+  - @fungi.computer/trellis@0.6.3
+  - @fungi.computer/braid@0.4.2
+  - @fungi.computer/workflows-wire@0.4.2
+
 ## 0.3.3
 
 ### Patch Changes
