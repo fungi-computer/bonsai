@@ -1,5 +1,20 @@
 # @fungi.computer/bonsai
 
+## 0.4.0
+
+### Minor Changes
+
+- Changes since 0.3.6:
+
+  - feat(front-doors): lead with the local try-it path and an install-now button
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/oyster@0.12.0
+  - @fungi.computer/trellis@0.7.0
+
 ## 0.3.6
 
 ### Patch Changes

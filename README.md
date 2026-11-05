@@ -42,7 +42,7 @@ so a repository per agent is cheap. To try Oyster without a Cloudflare account,
 ## Get it
 
 Bonsai installs with the other starter Apps. On a deployed Oyster (see the
-[Oyster quick start](https://github.com/fungi-computer/oyster#quick-start-deploy-your-own-oyster)),
+[Oyster quick start](https://github.com/fungi-computer/oyster#deploy-to-cloudflare)),
 run:
 
 ```sh
