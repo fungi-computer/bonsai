@@ -1,5 +1,12 @@
 # @fungi.computer/bonsai
 
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @fungi.computer/oyster@0.18.0
+
 ## 0.5.0
 
 ### Minor Changes
