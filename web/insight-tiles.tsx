@@ -15,6 +15,7 @@ import {
   type CodeInsights,
 } from "../shared/insights.js";
 import {
+  actorCounts,
   actorSplit,
   contributionDays,
   contributionWeeks,
@@ -78,7 +79,7 @@ function Contributors({ graph, actors }: { graph: Graph; actors: Agent[] }) {
   return (
     <>
       <p className="text-xs text-[var(--stipe-fg-muted)] bonsai-chart-note">
-        Loaded history (up to 12 weeks) · weekly commits by first pushing actor
+        Commits per week, last 12 weeks
       </p>
       <svg
         ref={ref}
@@ -154,6 +155,7 @@ function Contributors({ graph, actors }: { graph: Graph; actors: Agent[] }) {
 
 function ActorSplit({ graph, actors }: { graph: Graph; actors: Agent[] }) {
   const split = actorSplit(graph, actors);
+  const counts = actorCounts(graph, actors);
   const total =
     split.commits.agent + split.commits.human + split.commits.unknown;
   const contributors = contributionWeeks(graph, actors).contributors;
@@ -190,26 +192,35 @@ function ActorSplit({ graph, actors }: { graph: Graph; actors: Agent[] }) {
           );
         })}
       </svg>
-      <ScreenCells>
-        {kinds.map((kind) => (
-          <ScreenCell
-            key={kind}
-            legend={
-              kind === "agent"
-                ? "Agents"
-                : kind === "human"
-                  ? "People"
-                  : "Unknown"
-            }
-          >
-            {split.commits[kind]}
-          </ScreenCell>
+      <ul className="text-xs bonsai-chart-legend">
+        {contributors.map((actor) => (
+          <li key={actor.id}>
+            <i style={{ background: agentColor(actor.color) }} />
+            <span>{actor.name}</span>
+          </li>
         ))}
+      </ul>
+      <ScreenCells>
+        {kinds
+          .filter((kind) => kind !== "unknown" || counts.unknown > 0)
+          .map((kind) => (
+            <ScreenCell
+              key={kind}
+              legend={
+                kind === "agent"
+                  ? "Agents"
+                  : kind === "human"
+                    ? "People"
+                    : "Unknown"
+              }
+            >
+              {counts[kind]}
+            </ScreenCell>
+          ))}
       </ScreenCells>
       <p className="text-xs text-[var(--stipe-fg-muted)]">
-        {total} loaded commits ·{" "}
-        {split.merges.agent + split.merges.human + split.merges.unknown} merges.
-        Review counts are not included.
+        {total} {total === 1 ? "commit" : "commits"} ·{" "}
+        {split.merges.agent + split.merges.human + split.merges.unknown} merges
       </p>
     </>
   );

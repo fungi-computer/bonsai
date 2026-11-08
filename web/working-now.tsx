@@ -1,6 +1,6 @@
 import type { Activity } from "../shared/contract.js";
 import { AgentMark, AgentName, type AgentColors } from "./parts.js";
-import { relativeTime } from "./format.js";
+import { actorLabel, relativeTime } from "./format.js";
 
 const activityWindowMs = 15 * 60_000;
 
@@ -69,21 +69,24 @@ export function WorkingNow({
         return (
           <li key={item.agent} data-agent-slot={colors.get(item.agent)?.color}>
             <AgentMark name={item.agent} colors={colors} />
-            <div>
-              <p>
+            <div className="min-w-0">
+              <p className="truncate">
                 <AgentName name={item.agent} colors={colors} />{" "}
                 <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
                   on
                 </span>{" "}
                 <span className="font-mono text-sm bonsai-ref">
-                  {item.repo.includes("--") ? `${item.agent}/` : ""}
+                  {item.repo.includes("--")
+                    ? `${actorLabel(item.agent, colors.get(item.agent)?.you)}/`
+                    : ""}
                   {item.ref}
                 </span>
-              </p>
-              <p className="text-xs bonsai-working-areas">
-                {areas.map((area) => (
-                  <code key={area}>{area}</code>
-                ))}
+                {areas.length > 0 ? (
+                  <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
+                    {" · "}
+                    {areas.join(", ")}
+                  </span>
+                ) : null}
               </p>
             </div>
             <time className="text-xs text-[var(--stipe-fg-muted)] bonsai-feed-time">

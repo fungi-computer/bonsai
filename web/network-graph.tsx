@@ -17,7 +17,7 @@ import {
   type RefObject,
 } from "react";
 import type { Graph, GraphLane, GraphNode } from "../shared/contract.js";
-import { agentColor, relativeTime, shortHash } from "./format.js";
+import { actorLabel, agentColor, relativeTime, shortHash } from "./format.js";
 import type { AgentColors } from "./parts.js";
 
 const ROW = 52;
@@ -245,6 +245,15 @@ export function NetworkGraph({
   const [hover, setHover] = useState<Placed | null>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
 
+  const laneOwner = (lane: { owner: string | null; repo: string }) =>
+    lane.owner === null
+      ? lane.repo
+      : actorLabel(lane.owner, colors.get(lane.owner)?.you);
+  const nodeActor = (node: { agent: string | null; author: string }) =>
+    actorLabel(
+      node.agent ?? node.author,
+      colors.get(node.agent ?? node.author)?.you,
+    );
   const narrow = width > 0 && width < NARROW;
   const labelRoom = narrow ? NARROW_LABEL_ROOM : LABEL_ROOM;
   const labelChars = narrow ? NARROW_LABEL_CHARS : LABEL_CHARS;
@@ -462,7 +471,7 @@ export function NetworkGraph({
               >
                 <span className="flex min-w-0 flex-col items-start">
                   <span className="max-w-full truncate">
-                    {lane.owner ?? lane.repo} / {lane.ref}
+                    {laneOwner(lane)} / {lane.ref}
                   </span>
                   <span className="text-xs text-[var(--stipe-fg-muted)]">
                     {laneDetails?.get(lane.repo)}
@@ -473,8 +482,10 @@ export function NetworkGraph({
               <>
                 <span className="bonsai-lane-owner min-w-0 truncate">
                   {shortLabels
-                    ? (lane.owner ?? lane.ref)
-                    : (lane.owner ?? lane.repo)}
+                    ? lane.owner === null
+                      ? lane.ref
+                      : laneOwner(lane)
+                    : laneOwner(lane)}
                 </span>
                 {!shortLabels ? (
                   <span className="bonsai-lane-ref">{lane.ref}</span>
@@ -565,7 +576,7 @@ export function NetworkGraph({
                   className={classes.join(" ")}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${item.node.message} by ${item.node.agent ?? item.node.author}`}
+                  aria-label={`${item.node.message} by ${nodeActor(item.node)}`}
                   onPointerEnter={() => {
                     setHover(item);
                   }}
@@ -635,8 +646,7 @@ export function NetworkGraph({
             <strong>{hover.node.message}</strong>
             <span>
               <i style={{ background: beadInk(hover) }} aria-hidden="true" />
-              {hover.node.agent ?? hover.node.author} ·{" "}
-              {shortHash(hover.node.hash)} ·{" "}
+              {nodeActor(hover.node)} · {shortHash(hover.node.hash)} ·{" "}
               {relativeTime(hover.node.committedAt * 1000)}
             </span>
           </div>

@@ -103,7 +103,7 @@ function RepoCard({
         {repo.lastPushAt !== null
           ? `Pushed ${relativeTime(repo.lastPushAt)} · `
           : ""}
-        {repo.forks.length} forks
+        {repo.forks.length} {repo.forks.length === 1 ? "fork" : "forks"}
         {changes.data
           ? ` · ${String(changes.data.changes.filter((change) => change.state === "open" || change.state === "merging").length)} open changes`
           : ""}

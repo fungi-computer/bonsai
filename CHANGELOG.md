@@ -1,5 +1,38 @@
 # @fungi.computer/bonsai
 
+## 0.4.6
+
+### Patch Changes
+
+- Changes since 0.4.5:
+
+  - fix(bonsai): your own commits read You and the actor bar has a legend
+  - fix(bonsai): merged change header names the merger and folds the merge hash
+    into the meta line
+  - fix(bonsai): name members You or A member and never put an id in a fork name
+  - fix(bonsai): one actor formatter, readable fork names, plural and loader
+    polish
+  - fix(bonsai): a merged Change keeps its commits and diff
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.8.0
+  - @fungi.computer/caps@0.8.0
+  - @fungi.computer/oyster@0.15.0
+  - @fungi.computer/stipe@0.1.1
+  - @fungi.computer/trellis@0.7.4
+  - @fungi.computer/watchdog@0.1.3
+  - @fungi.computer/braid@0.4.6
+  - @fungi.computer/nacre@0.2.3
+  - @fungi.computer/workflows-wire@0.4.6
+  - @fungi.computer/maosaico@0.1.1
+  - @fungi.computer/sigils@0.3.0
+  - @fungi.computer/puffball@0.5.4
+
 ## 0.4.5
 
 ### Patch Changes

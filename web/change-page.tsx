@@ -313,6 +313,7 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
       (lane) =>
         lane.repo === change.sourceRepo && lane.ref === change.sourceRef,
     )?.owner ?? change.sourceRepo;
+  const merged = change.state === "merged";
   const mergeReason = change.mergeable.allowed
     ? undefined
     : policyMessage(change.mergeable.reason, change.head);
@@ -345,14 +346,29 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <AgentMark name={change.openedBy} colors={colors} size="lg" />
+              <AgentMark
+                name={
+                  merged
+                    ? (change.mergedBy ?? change.openedBy)
+                    : change.openedBy
+                }
+                colors={colors}
+                size="lg"
+              />
               <div className="min-w-0">
                 <h1 className="caps-card-title">
                   #{change.number} {change.title}
                 </h1>
                 <p className="text-sm">
-                  <AgentName name={change.openedBy} colors={colors} /> wants to
-                  merge{" "}
+                  <AgentName
+                    name={
+                      merged
+                        ? (change.mergedBy ?? change.openedBy)
+                        : change.openedBy
+                    }
+                    colors={colors}
+                  />{" "}
+                  {merged ? "merged" : "wants to merge"}{" "}
                   <InlineCode>
                     {change.sourceRepo}/{change.sourceRef}
                   </InlineCode>{" "}
@@ -382,7 +398,21 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
                   {pending === "close" ? "Closing…" : "Close"}
                 </Button>
               ) : null}
-              {change.mergeable.allowed ? (
+              {merged ? (
+                change.mergedCommit !== null ? (
+                  <Button variant="outline" asChild>
+                    <Link
+                      to={href({
+                        page: "commit",
+                        repo: change.repo,
+                        hash: change.mergedCommit,
+                      })}
+                    >
+                      View commit
+                    </Link>
+                  </Button>
+                ) : null
+              ) : change.mergeable.allowed ? (
                 mergeButton
               ) : (
                 <Tooltip>
@@ -397,10 +427,20 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
             </div>
           </div>
           <p className="text-sm text-[var(--stipe-fg-muted)]">
-            {change.ahead} ahead · {change.behind} behind · {fileCount}{" "}
-            {fileCount === 1 ? "file" : "files"} · +{diff.additions} / −
-            {diff.deletions} · updated {relativeTime(change.updatedAt)} · head{" "}
+            {merged
+              ? `${String(commits.length)} ${commits.length === 1 ? "commit" : "commits"}`
+              : `${String(change.ahead)} ahead · ${String(change.behind)} behind`}{" "}
+            · {fileCount} {fileCount === 1 ? "file" : "files"} · +
+            {diff.additions} / −{diff.deletions} · updated{" "}
+            {relativeTime(change.updatedAt)} · head{" "}
             <InlineCode>{shortHash(change.head)}</InlineCode>
+            {merged && change.mergedCommit !== null ? (
+              <>
+                {" "}
+                · merged as{" "}
+                <InlineCode>{shortHash(change.mergedCommit)}</InlineCode>
+              </>
+            ) : null}
           </p>
           {change.body ? <Markdown text={change.body} /> : null}
           {change.conflict ? (
@@ -409,12 +449,14 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
               title="Resolve conflicts before merging"
               description={`Bonsai recorded conflicts in ${change.conflict.paths.join(", ")}. Update ${sourceOwner}/${change.sourceRef} from ${change.targetRef}, resolve the files and push again.`}
             />
-          ) : !change.mergeable.allowed ? (
+          ) : !merged && !change.mergeable.allowed ? (
             <p className="text-sm text-[var(--stipe-fg-muted)]">
               {mergeReason}
             </p>
           ) : null}
-          {displayedOutcome ? <p role="status">{displayedOutcome}</p> : null}
+          {displayedOutcome && !merged ? (
+            <p role="status">{displayedOutcome}</p>
+          ) : null}
           {actionError ? (
             <Alert tone="error" description={actionError} />
           ) : null}

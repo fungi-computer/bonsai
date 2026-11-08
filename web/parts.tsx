@@ -1,7 +1,7 @@
 /** Shared pieces composed from Caps: agent marks, the activity feed, sparklines. */
 import { Button } from "@fungi.computer/caps/components/button";
 import { Monogram } from "@fungi.computer/caps/components/monogram";
-import { Loader } from "@fungi.computer/caps/components/loader";
+import { LoadingState } from "@fungi.computer/caps/blocks/loading-state";
 import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
 import { useListMotion } from "@fungi.computer/caps/lib/reorder-motion";
 import { curveMonotoneX } from "@visx/curve";
@@ -10,31 +10,21 @@ import { AreaClosed, LinePath } from "@visx/shape";
 import { useRef, type ReactNode } from "react";
 import type { Activity, Agent } from "../shared/contract.js";
 import { ApiError } from "./api.js";
-import { agentColor, relativeTime, shortActor, shortHash } from "./format.js";
+import { actorLabel, agentColor, relativeTime, shortHash } from "./format.js";
 import { href, Link } from "./router.js";
 
 export type AgentColors = ReadonlyMap<
   string,
-  { color: string; kind: Agent["kind"] }
+  { color: string; kind: Agent["kind"]; you?: boolean }
 >;
 
 export function agentColors(agents: readonly Agent[] | undefined): AgentColors {
   return new Map(
     (agents ?? []).map((agent) => [
       agent.name,
-      { color: agent.color, kind: agent.kind },
+      { color: agent.color, kind: agent.kind, you: agent.you === true },
     ]),
   );
-}
-
-/**
- * The actor's readable label. Bonsai never records a human member's display
- * name (their id is their identity, see `callerActor`), so a known human
- * actor reads as a short label instead of the raw host-issued id. Agents,
- * and any actor this view hasn't resolved yet, keep their recorded name.
- */
-export function actorLabel(name: string, colors: AgentColors): string {
-  return colors.get(name)?.kind === "human" ? shortActor(name) : name;
 }
 
 export function AgentMark({
@@ -48,7 +38,7 @@ export function AgentMark({
 }) {
   return (
     <Monogram
-      name={actorLabel(name, colors)}
+      name={actorLabel(name, colors.get(name)?.you)}
       seed={name}
       size={size}
       data-agent-slot={colors.get(name)?.color}
@@ -79,7 +69,7 @@ export function AgentName({
           fill={agentColor(colors.get(name)?.color)}
         />
       </svg>
-      {actorLabel(name, colors)}
+      {actorLabel(name, colors.get(name)?.you)}
     </span>
   );
 }
@@ -343,7 +333,7 @@ export function Sparkline({
 export function Loading({ label }: { label: string }) {
   return (
     <div className="bonsai-loading">
-      <Loader label={label} size="sm" />
+      <LoadingState message={label} />
     </div>
   );
 }

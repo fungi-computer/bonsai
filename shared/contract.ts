@@ -31,6 +31,8 @@ const agent = z.strictObject({
   color: z.string(),
   kind: z.enum(["agent", "human"]),
   createdAt: z.number(),
+  /** Set on the caller's own row, so a view can say "You". */
+  you: z.literal(true).optional(),
 });
 export type Agent = z.infer<typeof agent>;
 

@@ -1,5 +1,7 @@
 /** Small presentation helpers shared by Bonsai's views. */
 
+import { isMemberId } from "../shared/actors.js";
+
 const AGENT_COLOR = /^c[0-7]$/u;
 
 /** An agent's palette slot as a CSS colour; unknown agents read as neutral ink. */
@@ -14,11 +16,14 @@ export function shortHash(hash: string): string {
 }
 
 /**
- * A readable stand-in for a human actor whose host-issued member id is the
- * only identity Bonsai has recorded; never show that raw id.
+ * The one way Bonsai shows who did something. The host gives Bonsai a member
+ * id and no name, so the current member reads "You" and any other member
+ * reads "A member". Agents and other readable names are shown as they are.
+ * Never render a raw `tenant_` or `member_` id.
  */
-export function shortActor(id: string): string {
-  return `Member ${id.slice(-6)}`;
+export function actorLabel(name: string, you = false): string {
+  if (you) return "You";
+  return isMemberId(name) ? "A member" : name;
 }
 
 const units: [Intl.RelativeTimeFormatUnit, number][] = [

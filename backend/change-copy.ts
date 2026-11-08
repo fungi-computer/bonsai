@@ -13,7 +13,23 @@ import {
   type ChangeHistory,
 } from "./history.js";
 import type { Bonsai } from "./service.js";
-import { gitStore } from "./git.js";
+import { gitStore, type GitStore } from "./git.js";
+
+/**
+ * The target a Change is compared against. Once merged, the target is the new
+ * main, which already holds the work, so a comparison against it shows nothing.
+ * The merge commit's first parent is main as it stood before the merge, which
+ * keeps the commits and diff that were merged.
+ */
+async function comparisonTarget(
+  store: GitStore,
+  row: ChangeRecord,
+): Promise<string> {
+  if (row.state !== "merged" || row.mergedCommit === null) return row.target;
+  const merge = await store.commit(row.repo, row.mergedCommit);
+  const [before, merged] = merge?.parents ?? [];
+  return before !== undefined && merged === row.head ? before : row.target;
+}
 
 async function buildChangeCopy(
   runtime: Bonsai,
@@ -22,13 +38,13 @@ async function buildChangeCopy(
 ) {
   const bonsai = { ...runtime, store: projectionStore(runtime) };
   const compared =
-    history ??
+    (row.state === "merged" ? undefined : history) ??
     (await compareChange(
       bonsai.store,
       row.repo,
       row.sourceRepo,
       row.head,
-      row.target,
+      await comparisonTarget(bonsai.store, row),
     ));
   if (compared === null)
     throw new AppMethodRefusal("not_found", "The proposed head is missing");

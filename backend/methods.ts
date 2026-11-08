@@ -999,9 +999,18 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       requires: [],
       input: z.strictObject({}),
       output: agentPage,
-      handler: (_input, context) => ({
-        agents: context.bonsai.state.actors(),
-      }),
+      handler: (_input, context, caller) => {
+        const me = callerActor(caller);
+        return {
+          agents: context.bonsai.state
+            .actors()
+            .map((agent) =>
+              agent.kind === "human" && agent.name === me.name
+                ? { ...agent, you: true as const }
+                : agent,
+            ),
+        };
+      },
     }),
   },
 });

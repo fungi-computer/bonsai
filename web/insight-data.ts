@@ -1,4 +1,5 @@
 import type { Agent, Graph } from "../shared/contract.js";
+import { actorLabel } from "./format.js";
 
 type ContributorKind = "agent" | "human" | "unknown";
 function contributorKind(
@@ -6,6 +7,22 @@ function contributorKind(
   actors: readonly Agent[],
 ): ContributorKind {
   return actors.find((item) => item.id === actor)?.kind ?? "unknown";
+}
+
+/** How many distinct actors of each kind contributed, so one person counts once. */
+export function actorCounts(graph: Graph, actors: readonly Agent[]) {
+  const seen = {
+    agent: new Set<string>(),
+    human: new Set<string>(),
+    unknown: new Set<string>(),
+  };
+  for (const node of graph.nodes)
+    seen[contributorKind(node.agent, actors)].add(node.agent ?? node.author);
+  return {
+    agent: seen.agent.size,
+    human: seen.human.size,
+    unknown: seen.unknown.size,
+  };
 }
 
 export function actorSplit(graph: Graph, actors: readonly Agent[]) {
@@ -63,7 +80,10 @@ export function contributionWeeks(
     const actor = actors.find((item) => item.id === node.agent);
     const contributor = contributors.get(id) ?? {
       id,
-      name: actor?.name ?? node.agent ?? node.author,
+      name: actorLabel(
+        actor?.name ?? node.agent ?? node.author,
+        actor?.you === true,
+      ),
       kind: contributorKind(node.agent, actors),
       color: actor?.color,
       total: 0,

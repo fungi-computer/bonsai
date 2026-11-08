@@ -40,6 +40,7 @@ import type {
   TreeListing,
 } from "@fungi.computer/agar/roles/files";
 import { activityEnvelope, type HookEvent } from "../shared/hooks.js";
+import { forkOwnerSlug } from "../shared/actors.js";
 import { drainOutbox } from "./state.js";
 import { AppMethodRefusal } from "@fungi.computer/agar/backend";
 import { readCodeInsights } from "./insights.js";
@@ -400,7 +401,15 @@ export async function forkFor(
   const source = known(bonsai, name);
   if (source.parent !== null)
     throw new AppMethodRefusal("invalid", "Fork the canonical repository");
-  const forkName = `${source.name}--${actor.name}`;
+  let forkName = `${source.name}--${forkOwnerSlug(actor.name)}`;
+  // Two members can land on the same pond word; the next word is theirs.
+  for (
+    let attempt = 1;
+    bonsai.state.repo(forkName) !== null &&
+    bonsai.state.repo(forkName)?.owner !== actor.name;
+    attempt += 1
+  )
+    forkName = `${source.name}--${forkOwnerSlug(actor.name, attempt)}`;
   bonsai.state.assertRepoAvailable(forkName);
   const revision = bonsai.state.repositoryRefStatus(forkName).revision;
   const sourceRevision = bonsai.state.repositoryRefStatus(source.name).revision;
