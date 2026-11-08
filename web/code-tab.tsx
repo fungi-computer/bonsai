@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@fungi.computer/caps/components/button";
 import { CopyField } from "@fungi.computer/caps/components/copy-field";
 import { Disclosure } from "@fungi.computer/caps/components/disclosure";
-import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
 import { fileSyncResult } from "@fungi.computer/agar/roles/files";
 import { editInFilesEditor, callMethod } from "./transport.js";
 import type { RepoDetail } from "../shared/contract.js";
@@ -10,6 +9,7 @@ import { useFiles, useFile, useFilesEditor } from "./api.js";
 import { BonsaiBoard } from "./board.js";
 import { firstLine, formatBytes, relativeTime, shortHash } from "./format.js";
 import { Loading, Failure } from "./parts.js";
+import { QuickSetup } from "./quick-setup.js";
 import { href, Link, useRouter, type Route } from "./router.js";
 import { FileView, Markdown, RepoTree } from "./views.js";
 
@@ -51,14 +51,7 @@ export function CodeTab({
   const shown = route.file ?? readme;
   const file = useFile(route.repo, ref, shown);
   const shownText = file.data?.pending?.text ?? file.data?.text ?? null;
-  if (detail.empty)
-    return (
-      <EmptyState
-        variant="panel"
-        title="Empty repository"
-        description={`Push a first commit: git push ${detail.cloneUrl} main`}
-      />
-    );
+  if (detail.empty) return <QuickSetup detail={detail} />;
   const tree = files.isPending ? (
     <Loading label="Loading files" />
   ) : files.isError ? (

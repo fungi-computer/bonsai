@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
-import { CopyField } from "@fungi.computer/caps/components/copy-field";
 import {
   DataList,
   DataListHeading,
@@ -25,6 +24,7 @@ import { NetworkGraph } from "./network-graph.js";
 import { ActivityFeed, Failure, Loading, type AgentColors } from "./parts.js";
 import { WorkingNow, workingNow } from "./working-now.js";
 import { ChangeGroups } from "./change-rows.js";
+import { QuickSetup } from "./quick-setup.js";
 import { Markdown } from "./views.js";
 import { href, Link, useRouter, type Route } from "./router.js";
 import type { BoardTile } from "./board.js";
@@ -80,16 +80,7 @@ export function Overview({
     tab: Extract<Route, { page: "repo" }>["tab"],
     file: string | null = null,
   ) => href({ ...route, tab, file, path: "" });
-  if (detail.empty)
-    return (
-      <div className="space-y-3">
-        <p>
-          Push a first commit to start this repository. Add a README to
-          introduce the project.
-        </p>
-        <CopyField value={`git clone ${detail.cloneUrl}`} />
-      </div>
-    );
+  if (detail.empty) return <QuickSetup detail={detail} />;
   const tiles: BoardTile[] = [];
   const add = (
     id: TileId,

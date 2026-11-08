@@ -1,5 +1,28 @@
 # @fungi.computer/bonsai
 
+## 0.6.0
+
+### Minor Changes
+
+- Changes since 0.5.1:
+
+  - feat(bonsai): the empty home suggests names and shows what happens next
+  - fix(bonsai): use the host clone url and copy the working command from the
+    header
+  - fix(bonsai): keep the clone header a plain URL and tighten Quick setup
+    headings
+  - fix(bonsai): clone and push commands work as copied
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.1
+  - @fungi.computer/nacre@0.4.1
+  - @fungi.computer/oyster@0.18.1
+  - @fungi.computer/trellis@0.9.1
+
 ## 0.5.1
 
 ### Patch Changes

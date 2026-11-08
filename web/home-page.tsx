@@ -94,6 +94,38 @@ function HomeNetwork({
     />
   );
 }
+const nextSteps = [
+  [
+    "Create a repository",
+    "Name it. Bonsai commits a README so it has content.",
+  ],
+  [
+    "Agents fork it",
+    "Each Agent works on its own fork and never touches main.",
+  ],
+  ["You merge", "Review a change, merge it, and watch the network graph grow."],
+] as const;
+
+/** What happens after the first repository, so the empty state shows its product. */
+function NextSteps() {
+  return (
+    <section aria-label="What happens next" className="bonsai-next-steps">
+      <h2 className="text-sm font-semibold">What happens next</h2>
+      <ol>
+        {nextSteps.map(([title, text], index) => (
+          <li key={title}>
+            <span aria-hidden="true">{index + 1}</span>
+            <div>
+              <p className="font-semibold">{title}</p>
+              <p className="text-sm">{text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 /** The card's facts, saying only what is true of this repository. */
 function repoMeta(repo: RepoSummary, openChanges: number): string {
   const forks = repo.forks.length;
@@ -146,6 +178,15 @@ function RepoCard({
 export function HomePage({ live }: { live: LiveState }) {
   const [wide, setWide] = useState(false);
   const [creating, setCreating] = useState(false);
+  // A suggested name from the empty state; each choice restarts the dialog.
+  const [preset, setPreset] = useState<{ name: string; count: number }>({
+    name: "",
+    count: 0,
+  });
+  const startWith = (name: string) => {
+    setPreset((current) => ({ name, count: current.count + 1 }));
+    setCreating(true);
+  };
   const [asking, setAsking] = useState(false);
   const hostGit = useHostGitAccess();
   const [approved, setApproved] = useState(false);
@@ -312,17 +353,26 @@ export function HomePage({ live }: { live: LiveState }) {
             waitingFor="your answer"
           />
         ) : (
-          <EmptyState
-            variant="panel"
-            title="Start your first repository"
-            description="Every Agent gets its own fork; watch them merge back here."
-            primaryAction={{
-              label: "New repository",
-              onSelect: () => {
-                setCreating(true);
-              },
-            }}
-          />
+          <>
+            <EmptyState
+              variant="panel"
+              title="Start your first repository"
+              description="Every Agent gets its own fork; watch them merge back here."
+              primaryAction={{
+                label: "New repository",
+                onSelect: () => {
+                  startWith("");
+                },
+              }}
+              suggestions={["notes", "website", "experiments"].map((label) => ({
+                label,
+                onSelect: () => {
+                  startWith(label);
+                },
+              }))}
+            />
+            <NextSteps />
+          </>
         )
       ) : (
         <div className="flex items-center justify-between gap-3">
@@ -340,7 +390,12 @@ export function HomePage({ live }: { live: LiveState }) {
           </Button>
         </div>
       )}
-      <NewRepositoryDialog open={creating} onOpenChange={setCreating} />
+      <NewRepositoryDialog
+        key={preset.count}
+        open={creating}
+        onOpenChange={setCreating}
+        initialName={preset.name}
+      />
       <BonsaiBoard
         rowHeight={0}
         placements={placements}

@@ -10,6 +10,7 @@ import {
 } from "@fungi.computer/caps/components/popover";
 import { Select } from "@fungi.computer/caps/components/select";
 import { inspectIssueTree } from "@fungi.computer/issues";
+import { gitCommands } from "./git-commands.js";
 import type { RepoDetail } from "../shared/contract.js";
 import { useIssueFiles } from "./api.js";
 import { href, Link, useRouter, type Route } from "./router.js";
@@ -53,6 +54,7 @@ export function RepoNavigation({
   const anchor = useRef<HTMLDivElement>(null);
   const cloneButton = useRef<HTMLButtonElement>(null);
   const refName = route.ref ?? detail.defaultBranch;
+  const clone = gitCommands(detail.cloneUrl, detail.defaultBranch).clone;
   const navigate = (tab: Extract<Route, { page: "repo" }>["tab"]) => {
     go(href({ ...route, tab, file: null, path: "" }));
   };
@@ -189,7 +191,7 @@ export function RepoNavigation({
             </Select>
           </div>
           <div className="hidden max-w-sm md:block" ref={desktopClone}>
-            <CopyField value={detail.cloneUrl} label="Clone" />
+            <CopyField value={clone} label="Clone" />
           </div>
           <PopoverAnchor className="md:hidden" ref={anchor}>
             <Button
@@ -213,7 +215,7 @@ export function RepoNavigation({
               aria-label="Clone repository"
             >
               <div ref={phoneClone}>
-                <CopyField value={detail.cloneUrl} />
+                <CopyField value={clone} />
               </div>
             </Popover>
           </PopoverAnchor>

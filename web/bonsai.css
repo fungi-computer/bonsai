@@ -645,3 +645,44 @@ body {
     animation: none;
   }
 }
+
+/* The empty home's three steps: a row on wide screens, a stack on phones. */
+.bonsai-next-steps {
+  display: grid;
+  gap: var(--spacing-md);
+  margin-block-start: var(--spacing-xl);
+}
+.bonsai-next-steps ol {
+  display: grid;
+  gap: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 720px) {
+  .bonsai-next-steps ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.bonsai-next-steps li {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+.bonsai-next-steps li > span {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--stipe-hairline);
+  border-radius: 999px;
+  color: var(--stipe-fg-muted);
+  font-size: var(--text-xs);
+}
+.bonsai-next-steps p {
+  margin: 0;
+}
+.bonsai-next-steps li p + p {
+  color: var(--stipe-fg-muted);
+}

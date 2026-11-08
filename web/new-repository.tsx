@@ -23,13 +23,16 @@ import { isPermissionDenied, requestGitAccess } from "./transport.js";
 export function NewRepositoryDialog({
   open,
   onOpenChange,
+  initialName = "",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** A suggested name to start from, chosen from the empty state. */
+  initialName?: string;
 }) {
   const client = useQueryClient();
   const { go } = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName);
   const [readme, setReadme] = useState(true);
   const [touched, setTouched] = useState(false);
   const [creating, setCreating] = useState(false);
