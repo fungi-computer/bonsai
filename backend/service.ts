@@ -40,7 +40,9 @@ import type {
   TreeListing,
 } from "@fungi.computer/agar/roles/files";
 import { activityEnvelope, type HookEvent } from "../shared/hooks.js";
+import { commitFiles } from "@fungi.computer/agar/git-commit";
 import { forkOwnerSlug } from "../shared/actors.js";
+import { repoNameProblem } from "../shared/repo-name.js";
 import { drainOutbox } from "./state.js";
 import { AppMethodRefusal } from "@fungi.computer/agar/backend";
 import { readCodeInsights } from "./insights.js";
@@ -93,7 +95,6 @@ const MAX_ISSUE_FILES = 200;
 const MAX_ISSUE_BYTES = 64_000;
 const HEX40 = /^[0-9a-f]{40}$/u;
 const ZERO = "0".repeat(40);
-export const repoNamePattern = /^[a-z0-9][a-z0-9._-]{0,62}$/u;
 
 const recordedResult = z.literal(true);
 
@@ -262,7 +263,7 @@ export async function branchOptions(
 export async function createRepo(
   bonsai: Bonsai,
   actor: BonsaiActor,
-  input: { name: string; description: string },
+  input: { name: string; description: string; readme?: boolean },
 ): Promise<RepoSummary> {
   if (actor.kind !== "human")
     throw new AppMethodRefusal("forbidden", "Only people create repositories");
@@ -270,16 +271,48 @@ export async function createRepo(
   bonsai.state.assertRepoAvailable(input.name);
   const revision = bonsai.state.repositoryRefStatus(input.name).revision;
   const info = await bonsai.store.create(input.name, input.description);
+  if (input.readme === true) await commitReadme(bonsai, actor, input, info);
   return recordRepo(bonsai, actor, input, info.defaultBranch, revision);
+}
+
+/** The README a new repository starts with: its name and, when given, its purpose. */
+function readmeText(name: string, description: string): string {
+  return description === "" ? `# ${name}\n` : `# ${name}\n\n${description}\n`;
+}
+
+/** Write the first commit, so a new repository has content without a terminal. */
+async function commitReadme(
+  bonsai: Bonsai,
+  actor: BonsaiActor,
+  input: { name: string; description: string },
+  info: { defaultBranch: string },
+): Promise<void> {
+  const outcome = await commitFiles(bonsai.store, {
+    repository: input.name,
+    branch: info.defaultBranch,
+    expectedHead: null,
+    changes: [
+      {
+        path: "README.md",
+        content: new TextEncoder().encode(
+          readmeText(input.name, input.description),
+        ),
+      },
+    ],
+    message: "Add README",
+    author: { name: actor.name, email: `${actor.name}@bonsai.invalid` },
+  });
+  if (outcome.kind === "stale")
+    throw new AppMethodRefusal(
+      "conflict",
+      "The new repository changed while its README was written",
+    );
 }
 
 /** A repository name Bonsai can hold: lowercase, digits, dots, dashes; no `--`. */
 export function assertRepoName(name: string): void {
-  if (!repoNamePattern.test(name) || name.includes("--"))
-    throw new AppMethodRefusal(
-      "invalid",
-      "Use lowercase letters, digits, dots, dashes; no --",
-    );
+  const problem = repoNameProblem(name);
+  if (problem !== null) throw new AppMethodRefusal("invalid", problem);
 }
 
 /** Record a forked App's source repository, which the host already created

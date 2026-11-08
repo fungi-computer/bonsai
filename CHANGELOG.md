@@ -1,5 +1,35 @@
 # @fungi.computer/bonsai
 
+## 0.5.0
+
+### Minor Changes
+
+- Changes since 0.4.7:
+
+  - feat(bonsai): a Git glyph on the Git access panel
+  - fix(bonsai): export the connection type its connect signature uses
+  - fix(bonsai): the create flow returns its outcome instead of a silent catch
+  - feat(bonsai): gate on the host's permission state and align the overview
+    README
+  - fix(bonsai): no Live before the first repository, one-commit contributors as
+    text
+  - feat(bonsai): read Git setup from the host context, drop the probe, size
+    young repos to content
+  - feat(bonsai): check Git access on open and polish the first-run screens
+  - feat(bonsai): create a repository from the browser with a README and ask for
+    Git access in place
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.0
+  - @fungi.computer/nacre@0.4.0
+  - @fungi.computer/oyster@0.17.0
+  - @fungi.computer/trellis@0.9.0
+
 ## 0.4.7
 
 ### Patch Changes

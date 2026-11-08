@@ -24,11 +24,36 @@ export class ApiError extends Error {
   }
 }
 
-let connection: Pick<AppRoot, "capabilities"> | null = null;
+export type Connection = Readonly<{
+  capabilities: AppRoot["capabilities"];
+  /** The host's permission request, when this host can ask on Bonsai's behalf. */
+  ui?: Pick<AppRoot["ui"], "requestAppPermissions"> | undefined;
+}>;
+
+let connection: Connection | null = null;
 
 /** Remember the host connection mountApp handed over (null outside a host). */
-export function connect(app: Pick<AppRoot, "capabilities"> | null): void {
+export function connect(app: Connection | null): void {
   connection = app;
+}
+
+/** What the person answered when Bonsai asked the host for Git access. */
+export type GitAccessOutcome =
+  "granted" | "declined" | "customize" | "unavailable";
+
+/** Ask the host's consent sheet for the rights Bonsai's writes need. */
+export async function requestGitAccess(): Promise<GitAccessOutcome> {
+  const ui = connection?.ui;
+  if (ui === undefined) return "unavailable";
+  return ui.requestAppPermissions({
+    git: ["git.repository"],
+    events: ["app.events.emit"],
+  });
+}
+
+/** A write the host refused because Bonsai has not been given that permission. */
+export function isPermissionDenied(error: Error): boolean {
+  return error instanceof ApiError && error.status === 403;
 }
 
 /** The Team's files-role App as the shell's role routing names it; null hides the entry. */

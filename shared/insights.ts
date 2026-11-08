@@ -43,6 +43,21 @@ export const insightLayout = z.strictObject({
     ),
 });
 export type InsightLayout = z.infer<typeof insightLayout>;
+/**
+ * The default layout for a young repository: Network and Live shrink to one
+ * row, since a graph of a few commits does not need two, and the rows below
+ * move up to close the gap.
+ */
+export function compactDefaultLayout(): InsightLayout {
+  return {
+    ...defaultLayout,
+    placements: defaultLayout.placements.map((tile) => {
+      if (tile.id === "network" || tile.id === "live") return { ...tile, h: 1 };
+      return tile.row >= 2 ? { ...tile, row: tile.row - 1 } : tile;
+    }),
+  };
+}
+
 export const defaultLayout: InsightLayout = {
   view: "overview",
   placements: [

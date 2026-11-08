@@ -6,6 +6,7 @@ import { arrangeBento } from "@fungi.computer/maosaico";
 import { Button } from "@fungi.computer/caps/components/button";
 import { Select } from "@fungi.computer/caps/components/select";
 import {
+  compactDefaultLayout,
   defaultLayout,
   insightLayout,
   savedLayout,
@@ -218,10 +219,13 @@ export function OverviewBoard({
   repo,
   definitions,
   controlsTarget,
+  compactHero = false,
 }: {
   repo: string;
   definitions: BoardTile[];
   controlsTarget: HTMLElement | null;
+  /** A young repository: Network and Live take one row, not two. */
+  compactHero?: boolean;
 }) {
   const layout = useQuery({
     queryKey: ["insight-layout", repo],
@@ -242,7 +246,12 @@ export function OverviewBoard({
     <Grid
       key={repo}
       repo={repo}
-      initial={(layout.data.tiles ?? defaultLayout).placements}
+      initial={
+        (
+          layout.data.tiles ??
+          (compactHero ? compactDefaultLayout() : defaultLayout)
+        ).placements
+      }
       definitions={definitions}
       controlsTarget={controlsTarget}
     />

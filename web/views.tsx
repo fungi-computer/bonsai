@@ -146,6 +146,21 @@ export function RepoTree({ paths, active, onOpen }: TreeProps) {
 }
 
 /** Markdown from a repository, rendered by the shared Caps component. */
-export function Markdown({ text }: { text: string }) {
-  return <CapsMarkdown className="bonsai-markdown">{text}</CapsMarkdown>;
+export function Markdown({
+  text,
+  tile = false,
+}: {
+  text: string;
+  /** Inside an overview tile, which already pads its content. */
+  tile?: boolean;
+}) {
+  return (
+    <CapsMarkdown
+      className={
+        tile ? "bonsai-markdown bonsai-markdown-tile" : "bonsai-markdown"
+      }
+    >
+      {text}
+    </CapsMarkdown>
+  );
 }

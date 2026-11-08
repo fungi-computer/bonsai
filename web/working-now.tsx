@@ -16,7 +16,9 @@ export function workingNow(events: readonly Activity[]) {
     { repo: string; ref: string; at: number; paths: Set<string> }
   >();
   for (const event of events) {
-    if (event.type !== "push" || event.at < since) continue;
+    // Working now means an Agent on its own fork, not a finished commit to main.
+    if (event.type !== "push" || event.at < since || !event.repo.includes("--"))
+      continue;
     const current = byAgent.get(event.actor);
     const ref = refLabel(event.data.updates[0]?.ref ?? "");
     if (!current)

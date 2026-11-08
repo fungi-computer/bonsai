@@ -14,6 +14,7 @@ import {
   mergeResult,
   repoDetail,
   repoPage,
+  repoSummary,
   type Activity,
 } from "../shared/contract.js";
 import { fileContent, fileList } from "@fungi.computer/agar/roles/files";
@@ -30,6 +31,15 @@ export const useRepos = () =>
     queryKey: ["repos"],
     queryFn: () => callMethod("repos.list", {}, repoPage),
   });
+
+/** Create a repository; a README is committed first when asked for. */
+export function createRepository(input: { name: string; readme: boolean }) {
+  return callMethod(
+    "repos.create",
+    { name: input.name, readme: input.readme },
+    repoSummary,
+  );
+}
 
 export const useAgents = () =>
   useQuery({

@@ -220,7 +220,7 @@ export function Overview({
         variant="quiet"
         headingLevel={3}
         title="No changes yet"
-        description="Proposed updates will appear here."
+        description="When an Agent pushes to its fork, its change shows up here to merge."
       />,
     );
   // Nothing real to show yet: render nothing rather than a stuck loader (a
@@ -287,7 +287,10 @@ export function Overview({
         />
       ) : (
         <div className="line-clamp-6">
-          <Markdown text={readme.data.text ?? "README is not a text file."} />
+          <Markdown
+            tile
+            text={readme.data.text ?? "README is not a text file."}
+          />
         </div>
       ),
       <Link to={repoLink("code", readmePath)}>Open in Code ›</Link>,
@@ -334,6 +337,7 @@ export function Overview({
       repo={route.repo}
       definitions={tiles}
       controlsTarget={controlsTarget}
+      compactHero={(graph.data?.nodes.length ?? Infinity) <= 3}
     />
   );
 }

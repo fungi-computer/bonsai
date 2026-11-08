@@ -90,6 +90,7 @@ import {
 } from "@fungi.computer/agar/roles/files";
 import { hookEventFor } from "../shared/hooks.js";
 import { repositoryDeletion } from "../shared/repository-deletion.js";
+import { repoNamePattern } from "../shared/repo-name.js";
 import {
   codeInsights,
   insightLayout,
@@ -573,8 +574,10 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       effect: "write",
       requires: ["git.repository"],
       input: z.strictObject({
-        name: z.string().regex(service.repoNamePattern),
+        name: z.string().regex(repoNamePattern),
         description: z.string().max(280).default(""),
+        /** Commit a README as the first commit, so the repository has content. */
+        readme: z.boolean().default(false),
       }),
       output: repoSummary,
       handler: (input, context, caller) =>

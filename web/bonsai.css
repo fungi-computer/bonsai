@@ -390,6 +390,9 @@ body {
   max-width: none;
   padding: var(--spacing-lg) var(--spacing-xl);
 }
+.bonsai-markdown.bonsai-markdown-tile {
+  padding: 0;
+}
 .bonsai-change-list .list-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;

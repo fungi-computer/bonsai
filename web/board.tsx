@@ -113,7 +113,8 @@ export function BonsaiBoard({
       return [...active]
         .sort((a, b) => phoneOrder.indexOf(a.id) - phoneOrder.indexOf(b.id))
         .map((tile) => {
-          const h = tile.h;
+          // One column stacks tiles to their content, never to a desktop row span.
+          const h = 1;
           const next = { ...tile, col: 0, row, w: 1, h };
           row += h;
           return next;
@@ -123,6 +124,9 @@ export function BonsaiBoard({
       ? arrangeBento(active, columns)
       : active;
   }, [placements, tiles, columns, phoneOrder]);
+  // Phone tiles that measure their own content need no minimum row height.
+  const packedRowHeight =
+    columns === 1 && tiles.every((tile) => tile.autoHeight) ? 0 : rowHeight;
   const rowHeights = useMemo(() => {
     const rows: number[] = [];
     for (const tile of shown) {
@@ -132,18 +136,18 @@ export function BonsaiBoard({
       const last = tile.row + tile.h - 1;
       const earlier = Array.from(
         { length: tile.h - 1 },
-        (_, i) => (rows[tile.row + i] ?? rowHeight) + 12,
+        (_, i) => (rows[tile.row + i] ?? packedRowHeight) + 12,
       ).reduce((sum, h) => sum + h, 0);
-      while (rows.length <= last) rows.push(rowHeight);
-      rows[last] = Math.max(rows[last] ?? rowHeight, measured - earlier);
+      while (rows.length <= last) rows.push(packedRowHeight);
+      rows[last] = Math.max(rows[last] ?? packedRowHeight, measured - earlier);
     }
     return rows;
-  }, [shown, tiles, heights, rowHeight]);
+  }, [shown, tiles, heights, packedRowHeight]);
   const binding = useMaosaicoBento({
     placements: shown,
     columns,
     width,
-    rowHeight,
+    rowHeight: packedRowHeight,
     rowHeights,
     gap: 12,
     enabled: editable,

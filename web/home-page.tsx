@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { DataListHeading } from "@fungi.computer/caps/components/data-list";
 import { Status } from "@fungi.computer/caps/components/status";
 import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
+import { GitBranch } from "lucide-react";
+import { Button } from "@fungi.computer/caps/components/button";
+import { SetupNotice } from "@fungi.computer/caps/blocks/setup-notice";
+import { NewRepositoryDialog } from "./new-repository.js";
+import { useHostGitAccess } from "./host-access.js";
+import { requestGitAccess } from "./transport.js";
 import {
   useAgents,
   useRepos,
@@ -88,6 +94,24 @@ function HomeNetwork({
     />
   );
 }
+/** The card's facts, saying only what is true of this repository. */
+function repoMeta(repo: RepoSummary, openChanges: number): string {
+  const forks = repo.forks.length;
+  return [
+    repo.lastPushAt === null
+      ? "Nothing pushed yet"
+      : `Pushed ${relativeTime(repo.lastPushAt)}`,
+    forks === 0
+      ? "No forks yet"
+      : `${String(forks)} ${forks === 1 ? "fork" : "forks"}`,
+    openChanges > 0
+      ? `${String(openChanges)} open ${openChanges === 1 ? "change" : "changes"}`
+      : null,
+  ]
+    .filter((part) => part !== null)
+    .join(" · ");
+}
+
 function RepoCard({
   repo,
   colors,
@@ -96,17 +120,15 @@ function RepoCard({
   colors: AgentColors;
 }) {
   const changes = useChanges(repo.name);
+  const openChanges =
+    changes.data?.changes.filter(
+      (change) => change.state === "open" || change.state === "merging",
+    ).length ?? 0;
   return (
     <div className="space-y-3">
       {repo.description ? <p>{repo.description}</p> : null}
       <p className="text-xs text-[var(--stipe-fg-muted)]">
-        {repo.lastPushAt !== null
-          ? `Pushed ${relativeTime(repo.lastPushAt)} · `
-          : ""}
-        {repo.forks.length} {repo.forks.length === 1 ? "fork" : "forks"}
-        {changes.data
-          ? ` · ${String(changes.data.changes.filter((change) => change.state === "open" || change.state === "merging").length)} open changes`
-          : ""}
+        {repoMeta(repo, openChanges)}
       </p>
       <div className="flex flex-wrap gap-2">
         {repo.forks.map((fork) => (
@@ -123,6 +145,20 @@ function RepoCard({
 }
 export function HomePage({ live }: { live: LiveState }) {
   const [wide, setWide] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const hostGit = useHostGitAccess();
+  const [approved, setApproved] = useState(false);
+  const missing = hostGit === "missing" && !approved;
+  async function approveAccess(): Promise<void> {
+    setAsking(true);
+    try {
+      // The host's setup fact turns ready by itself; this flips the screen now.
+      if ((await requestGitAccess()) === "granted") setApproved(true);
+    } finally {
+      setAsking(false);
+    }
+  }
   useEffect(() => {
     const media = matchMedia("(min-width: 1024px)");
     const update = () => {
@@ -146,7 +182,10 @@ export function HomePage({ live }: { live: LiveState }) {
     featured !== undefined && featured.lastPushAt !== null,
   );
   const tiles: BoardTile[] = [];
+  // Activity belongs to repositories; with none listed there is nothing to show.
+  const hasRepos = (repos.data?.repos.length ?? 0) > 0;
   if (
+    hasRepos &&
     featured?.lastPushAt !== null &&
     featured !== undefined &&
     (network.isPending || network.isError || network.data.nodes.length > 0)
@@ -173,7 +212,9 @@ export function HomePage({ live }: { live: LiveState }) {
         />
       ),
     });
-  if (events.isError)
+  if (!hasRepos) {
+    // No Live tile before the first repository.
+  } else if (events.isError)
     tiles.push({
       id: "live",
       title: "Live",
@@ -257,12 +298,49 @@ export function HomePage({ live }: { live: LiveState }) {
           }}
         />
       ) : repos.data.repos.length === 0 ? (
-        <EmptyState
-          variant="panel"
-          title="No repositories yet"
-          description="Repositories you and your Agents create appear here, with every fork, push and change live."
-        />
-      ) : null}
+        missing ? (
+          <SetupNotice
+            variant="panel"
+            need="Bonsai needs Git access to save your repositories"
+            cause="Every Agent gets its own fork; watch them merge back here."
+            visual={<GitBranch aria-hidden="true" />}
+            fix={{
+              label: "Approve Git access",
+              onSelect: () => void approveAccess(),
+              pending: asking,
+            }}
+            waitingFor="your answer"
+          />
+        ) : (
+          <EmptyState
+            variant="panel"
+            title="Start your first repository"
+            description="Every Agent gets its own fork; watch them merge back here."
+            primaryAction={{
+              label: "New repository",
+              onSelect: () => {
+                setCreating(true);
+              },
+            }}
+          />
+        )
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="caps-card-title">Repositories</h1>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={missing}
+            title={missing ? "Approve Git access first" : undefined}
+            onClick={() => {
+              setCreating(true);
+            }}
+          >
+            New repository
+          </Button>
+        </div>
+      )}
+      <NewRepositoryDialog open={creating} onOpenChange={setCreating} />
       <BonsaiBoard
         rowHeight={0}
         placements={placements}

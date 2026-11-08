@@ -76,6 +76,25 @@ function Contributors({ graph, actors }: { graph: Graph; actors: Agent[] }) {
         No sampled commits in the past 12 weeks.
       </p>
     );
+  if (weeks.length < 2) {
+    const total = data.contributors.reduce((sum, item) => sum + item.total, 0);
+    return (
+      <>
+        <p className="text-sm">
+          {total} {total === 1 ? "commit" : "commits"} this week.
+        </p>
+        <ul className="text-xs bonsai-chart-legend">
+          {data.contributors.map((item) => (
+            <li key={item.id}>
+              <i style={{ background: agentColor(item.color) }} />
+              <span>{item.name}</span>
+              <strong>{item.total}</strong>
+            </li>
+          ))}
+        </ul>
+      </>
+    );
+  }
   return (
     <>
       <p className="text-xs text-[var(--stipe-fg-muted)] bonsai-chart-note">
@@ -161,6 +180,16 @@ function ActorSplit({ graph, actors }: { graph: Graph; actors: Agent[] }) {
   const contributors = contributionWeeks(graph, actors).contributors;
   const recorded = contributors.reduce((sum, actor) => sum + actor.total, 0);
   let offset = 0;
+  if (split.commits.agent === 0)
+    return (
+      <>
+        <p className="text-sm">Just you so far.</p>
+        <p className="text-xs text-[var(--stipe-fg-muted)]">
+          {total} {total === 1 ? "commit" : "commits"}. Agents appear here once
+          they push to their own forks.
+        </p>
+      </>
+    );
   return (
     <>
       <p className="text-2xl font-semibold">
