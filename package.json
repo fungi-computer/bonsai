@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/bonsai",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -12,7 +12,7 @@
     "@fungi.computer/agar": "0.9.0",
     "@fungi.computer/caps": "0.10.1",
     "@fungi.computer/issues": "0.2.0",
-    "@fungi.computer/oyster": "0.19.0",
+    "@fungi.computer/oyster": "0.19.1",
     "@fungi.computer/puffball": "0.5.5",
     "@fungi.computer/sigils": "0.3.0",
     "@fungi.computer/stipe": "0.1.1",

@@ -1,5 +1,17 @@
 # @fungi.computer/bonsai
 
+## 0.6.4
+
+### Patch Changes
+
+- Changes since 0.6.3:
+
+  - fix(bonsai): the copied clone command works as pasted without an exported
+    key
+
+- Updated dependencies
+  - @fungi.computer/oyster@0.19.1
+
 ## 0.6.3
 
 ### Patch Changes

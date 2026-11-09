@@ -9,22 +9,22 @@ export function QuickSetup({ detail }: { detail: RepoDetail }) {
     <div className="space-y-6" aria-label="Quick setup">
       <p>This repository is empty. Push your code to start it.</p>
       <section className="space-y-2">
-        <h3 className="text-sm font-semibold">1. Use your owner key</h3>
+        <h3 className="text-sm font-semibold">Clone it</h3>
         <p className="text-sm">
           Run this in the folder where you started Oyster. On a deployed Oyster,
-          use the owner key you saved at setup.
+          set OYSTER_OWNER_KEY to the owner key you saved at setup first.
         </p>
-        <CopyField value={commands.key} />
-      </section>
-      <section className="space-y-2">
-        <h3 className="text-sm font-semibold">2. Start from this repository</h3>
         <CopyField value={commands.clone} />
       </section>
       <section className="space-y-2">
         <h3 className="text-sm font-semibold">
           Or push a project you already have
         </h3>
-        <p className="text-sm">Run this inside that project.</p>
+        <p className="text-sm">
+          First run this in the folder where you started Oyster, then push from
+          your project in the same terminal.
+        </p>
+        <CopyField value={commands.key} />
         <CopyField value={commands.push} />
       </section>
     </div>
