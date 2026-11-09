@@ -1,5 +1,19 @@
 # @fungi.computer/bonsai
 
+## 0.6.9
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/maosaico@0.1.2
+  - @fungi.computer/nacre@0.4.3
+  - @fungi.computer/oyster@0.19.6
+  - @fungi.computer/trellis@0.10.1
+  - @fungi.computer/caps@0.10.1
+
 ## 0.6.8
 
 ### Patch Changes
