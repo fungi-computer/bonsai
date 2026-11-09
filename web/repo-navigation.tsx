@@ -154,7 +154,10 @@ export function RepoNavigation({
             </span>
           ) : null}
         </div>
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <PopoverAnchor
+          className="flex min-w-0 flex-wrap items-center gap-2"
+          ref={anchor}
+        >
           {working > 0 ? (
             <Status
               aria-label="Recent repository pushes"
@@ -191,9 +194,16 @@ export function RepoNavigation({
             </Select>
           </div>
           <div className="hidden max-w-sm md:block" ref={desktopClone}>
-            <CopyField value={clone} label="Clone" />
+            <CopyField
+              value={clone}
+              fieldLabel="Clone repository"
+              displayValue={detail.cloneUrl}
+            />
+            <p className="mt-1 text-sm text-[var(--stipe-fg-muted)]">
+              Run from my-oyster.
+            </p>
           </div>
-          <PopoverAnchor className="md:hidden" ref={anchor}>
+          <div className="md:hidden">
             <Button
               ref={cloneButton}
               variant="outline"
@@ -210,16 +220,23 @@ export function RepoNavigation({
               open={cloneOpen}
               side="bottom"
               id="repo-clone"
-              className="w-72 max-w-[calc(100vw-2rem)]"
+              className="z-20 w-72 max-w-[calc(100vw-2rem)]"
               role="region"
               aria-label="Clone repository"
             >
               <div ref={phoneClone}>
-                <CopyField value={clone} />
+                <CopyField
+                  value={clone}
+                  fieldLabel="Clone repository"
+                  displayValue={detail.cloneUrl}
+                />
+                <p className="mt-1 text-sm text-[var(--stipe-fg-muted)]">
+                  Run from my-oyster.
+                </p>
               </div>
             </Popover>
-          </PopoverAnchor>
-        </div>
+          </div>
+        </PopoverAnchor>
       </header>
       <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
         <NavigationRail

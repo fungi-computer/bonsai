@@ -20,7 +20,8 @@ import {
   type IssueIndexRecord,
   type IssueStatus,
 } from "@fungi.computer/issues";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { writeFirstIssue } from "./first-issue.js";
 import { useIssueFiles } from "./api.js";
 import { Failure, Loading } from "./parts.js";
 import { href, Link } from "./router.js";
@@ -143,6 +144,8 @@ export function IssuesPanel({
   refName: string;
   open: string | null;
 }) {
+  const [creating, setCreating] = useState(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
   const files = useIssueFiles(repo, refName);
   const report = useMemo(
     () => (files.data ? inspectIssueTree(files.data.files) : null),
@@ -160,12 +163,34 @@ export function IssuesPanel({
     );
   if (report === null || Object.keys(files.data.files).length === 0)
     return (
-      <EmptyState
-        variant="panel"
-        headingLevel={3}
-        title="No issues yet"
-        description="Issues live in the repository as Markdown under issues/<effort>/<NN>-<slug>.md, so agents read and update them with git."
-      />
+      <div>
+        <EmptyState
+          variant="panel"
+          headingLevel={3}
+          title="No issues yet"
+          description="Issues are Markdown files in your repo. Write the first one."
+          primaryAction={{
+            label: "Write the first issue",
+            pending: creating,
+            onSelect: () => {
+              setCreating(true);
+              setCreationError(null);
+              void writeFirstIssue(repo, refName)
+                .catch((error: unknown) => {
+                  setCreationError(
+                    error instanceof Error
+                      ? error.message
+                      : "The editor could not open",
+                  );
+                })
+                .finally(() => {
+                  setCreating(false);
+                });
+            },
+          }}
+        />
+        {creationError === null ? null : <p role="alert">{creationError}</p>}
+      </div>
     );
   const opened = open === null ? undefined : files.data.files[open];
   if (open !== null && opened !== undefined)

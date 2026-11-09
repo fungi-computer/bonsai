@@ -1,5 +1,19 @@
 # @fungi.computer/bonsai
 
+## 0.6.20
+
+### Patch Changes
+
+- Changes since 0.6.19:
+
+  - fix(bonsai): write the first issue in the file editor
+  - fix(bonsai): keep phone clone popover inside viewport
+  - fix(bonsai): make issue navigation callback explicit
+  - fix(bonsai): give empty issues a repository next step
+
+- Updated dependencies
+  - @fungi.computer/oyster@0.19.17
+
 ## 0.6.19
 
 ### Patch Changes
