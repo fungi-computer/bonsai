@@ -23,11 +23,13 @@ function Grid({
   initial,
   definitions,
   controlsTarget,
+  compactHero,
 }: {
   repo: string;
   initial: InsightLayout["placements"];
   definitions: BoardTile[];
   controlsTarget: HTMLElement | null;
+  compactHero: boolean;
 }) {
   const client = useQueryClient();
   const [tiles, setTiles] = useState(initial);
@@ -175,6 +177,7 @@ function Grid({
         </p>
       ) : null}
       <BonsaiBoard
+        {...(compactHero && !editing ? { rowHeight: 0 } : {})}
         placements={tiles}
         tiles={definitions}
         phoneOrder={
@@ -254,6 +257,7 @@ export function OverviewBoard({
       }
       definitions={definitions}
       controlsTarget={controlsTarget}
+      compactHero={compactHero && layout.data.tiles === null}
     />
   );
 }

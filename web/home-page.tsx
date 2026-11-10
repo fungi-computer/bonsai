@@ -344,6 +344,7 @@ export function HomePage({ live }: { live: LiveState }) {
       ) : repos.data.repos.length === 0 ? (
         missing ? (
           <SetupNotice
+            className="bonsai-onboarding"
             variant="panel"
             need="Bonsai needs Git access to save your repositories"
             cause="Keep files and their history, with a separate working copy for each AI helper."
@@ -356,7 +357,7 @@ export function HomePage({ live }: { live: LiveState }) {
             waitingFor="your answer"
           />
         ) : (
-          <>
+          <div className="bonsai-onboarding">
             <EmptyState
               variant="plain"
               visual="blobs"
@@ -376,7 +377,7 @@ export function HomePage({ live }: { live: LiveState }) {
               }))}
             />
             <NextSteps />
-          </>
+          </div>
         )
       ) : (
         <div className="flex items-center justify-between gap-3">

@@ -1,5 +1,24 @@
 # @fungi.computer/bonsai
 
+## 0.6.37
+
+### Patch Changes
+
+- Changes since 0.6.36:
+
+  - fix(apps): restore first-step emphasis and empty-state headings
+  - fix(bonsai): balance compact overview columns around their content
+  - fix(bonsai): retain tile movement while arranging compact views
+  - fix(bonsai): omit the row height override for saved layouts
+  - fix(apps): tighten Inkcap Trellis and Bonsai first views
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.5
+  - @fungi.computer/oyster@0.19.34
+  - @fungi.computer/trellis@0.10.8
+
 ## 0.6.36
 
 ### Patch Changes

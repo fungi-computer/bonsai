@@ -645,7 +645,18 @@ body {
   }
 }
 
-/* The empty home's three steps: a row on wide screens, a stack on phones. */
+/* The invitation and next steps share one reading measure. */
+.bonsai-onboarding {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+.bonsai-onboarding > .empty-state > .empty-state-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+}
 .bonsai-next-steps {
   display: grid;
   gap: var(--spacing-md);

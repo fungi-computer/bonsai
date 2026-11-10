@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ChevronRight } from "lucide-react";
 import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
 import {
   DataList,
@@ -290,7 +291,12 @@ export function Overview({
           />
         </div>
       ),
-      <Link to={repoLink("code", readmePath)}>Open in Code ›</Link>,
+      <Link
+        className="inline-flex items-center gap-1"
+        to={repoLink("code", readmePath)}
+      >
+        Open in Code <ChevronRight aria-hidden="true" size={16} />
+      </Link>,
     );
   for (const id of [
     "actors",

@@ -48,10 +48,10 @@ export function compactDefaultLayout(): InsightLayout {
   return {
     view: "overview",
     placements: [
-      { id: "readme", col: 0, row: 0, w: 3, h: 1 },
-      { id: "next", col: 3, row: 0, w: 1, h: 1 },
-      { id: "network", col: 0, row: 1, w: 3, h: 1 },
-      { id: "live", col: 3, row: 1, w: 1, h: 1 },
+      { id: "readme", col: 0, row: 0, w: 2, h: 1 },
+      { id: "next", col: 2, row: 0, w: 2, h: 1 },
+      { id: "network", col: 0, row: 1, w: 2, h: 1 },
+      { id: "live", col: 2, row: 1, w: 2, h: 1 },
     ],
   };
 }
