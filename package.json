@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/bonsai",
-  "version": "0.6.40",
+  "version": "0.6.41",
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -12,7 +12,7 @@
     "@fungi.computer/agar": "0.9.1",
     "@fungi.computer/caps": "0.10.5",
     "@fungi.computer/issues": "0.2.0",
-    "@fungi.computer/oyster": "0.20.2",
+    "@fungi.computer/oyster": "0.20.3",
     "@fungi.computer/puffball": "0.5.5",
     "@fungi.computer/sigils": "0.3.1",
     "@fungi.computer/stipe": "0.1.1",
@@ -50,7 +50,7 @@
     "typescript": "5.9.3",
     "vite": "8.2.2",
     "vitest": "4.1.11",
-    "wrangler": "4.156.2",
+    "wrangler": "4.159.0",
     "tsx": "4.23.12",
     "@fungi.computer/gills": "0.3.0",
     "eslint": "10.9.1",

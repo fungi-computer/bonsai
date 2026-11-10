@@ -1,5 +1,16 @@
 # @fungi.computer/bonsai
 
+## 0.6.41
+
+### Patch Changes
+
+- Changes since 0.6.40:
+
+  - fix(oyster): run trial Git storage in Wrangler's local simulator
+
+- Updated dependencies
+  - @fungi.computer/oyster@0.20.3
+
 ## 0.6.40
 
 ### Patch Changes
