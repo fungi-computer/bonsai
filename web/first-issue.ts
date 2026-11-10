@@ -1,7 +1,7 @@
 import { fileContent, fileSaveResult } from "@fungi.computer/agar/roles/files";
 import { callMethod, editInFilesEditor, filesEditor } from "./transport.js";
 
-const path = "issues/general/01-first-issue.md";
+export const firstIssuePath = "issues/general/01-first-issue.md";
 
 /** Create the first issue through the editor's save door, then open it there. */
 export async function writeFirstIssue(repo: string, branch: string) {
@@ -9,7 +9,7 @@ export async function writeFirstIssue(repo: string, branch: string) {
     throw new Error("Choose a file editor in your App settings first.");
   const file = await callMethod(
     "files.read",
-    { repo, ref: branch, path },
+    { repo, ref: branch, path: firstIssuePath },
     fileContent,
   );
   // A repeated click or an earlier editor draft must never replace someone's text.
@@ -19,7 +19,7 @@ export async function writeFirstIssue(repo: string, branch: string) {
       {
         repo,
         branch,
-        path,
+        path: firstIssuePath,
         baseBlob: null,
         baseCommit: file.commit,
         revision: file.version,
@@ -59,5 +59,5 @@ Add any details that will help someone understand the issue.
     if (result.kind !== "saved" && result.kind !== "synced")
       throw new Error("The issue could not be created. Try again.");
   }
-  await editInFilesEditor(repo, branch, path);
+  await editInFilesEditor(repo, branch, firstIssuePath);
 }

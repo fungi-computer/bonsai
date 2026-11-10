@@ -424,6 +424,7 @@ export function NetworkGraph({
     <div className="bonsai-network">
       <div className="bonsai-network-tools" role="group" aria-label="Zoom">
         <IconButton
+          size="responsive"
           aria-label="Zoom out"
           icon={<ZoomOut />}
           disabled={step <= MIN_STEP}
@@ -432,6 +433,7 @@ export function NetworkGraph({
           }}
         />
         <IconButton
+          size="responsive"
           aria-label="Fit history"
           icon={<Maximize2 />}
           active={zoom === 1}
@@ -440,6 +442,7 @@ export function NetworkGraph({
           }}
         />
         <IconButton
+          size="responsive"
           aria-label="Zoom in"
           icon={<ZoomIn />}
           disabled={zoom >= 4}
@@ -464,7 +467,7 @@ export function NetworkGraph({
               <Button
                 variant="ghost"
                 size="xs"
-                className="h-auto min-w-max py-1"
+                className="h-auto min-w-max py-1 max-sm:min-h-[var(--caps-touch-target)]"
                 onClick={() => {
                   onLaneSelect(lane);
                 }}

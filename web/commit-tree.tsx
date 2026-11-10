@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { Graph, GraphNode } from "../shared/contract.js";
 import { layoutGraph } from "./network-graph.js";
-import { agentColor, relativeTime, shortHash } from "./format.js";
+import { actorLabel, agentColor, relativeTime, shortHash } from "./format.js";
 import { href, Link } from "./router.js";
 import type { AgentColors } from "./parts.js";
 
@@ -131,17 +131,24 @@ export function CommitTree({
                     hash: node.hash,
                   })}
                 >
-                  <span className="min-w-0 truncate">{node.message}</span>
-                  <span className="max-w-[45%] shrink-0 truncate text-xs text-[var(--stipe-fg-muted)] bonsai-history-branch">
-                    {lane?.owner ? `${lane.owner}/` : ""}
-                    {lane?.ref}
+                  <span className="flex items-baseline gap-1">
+                    <span className="min-w-0 truncate">{node.message}</span>
+                    <span className="max-w-[45%] shrink-0 truncate text-xs text-[var(--stipe-fg-muted)] bonsai-history-branch">
+                      {lane?.owner
+                        ? `${actorLabel(lane.owner, colors.get(lane.owner)?.you)}/`
+                        : ""}
+                      {lane?.ref}
+                    </span>
+                  </span>
+                  <span className="block text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
+                    <code>{shortHash(node.hash)}</code> ·{" "}
+                    {actorLabel(
+                      node.agent ?? node.author,
+                      colors.get(node.agent ?? node.author)?.you,
+                    )}{" "}
+                    · {relativeTime(node.committedAt * 1000)}
                   </span>
                 </Link>
-                <p className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
-                  <code>{shortHash(node.hash)}</code> ·{" "}
-                  {node.agent ?? node.author} ·{" "}
-                  {relativeTime(node.committedAt * 1000)}
-                </p>
               </li>
             );
           })}

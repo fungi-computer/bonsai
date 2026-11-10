@@ -63,6 +63,8 @@ export const useFile = (name: string, ref: string, path: string | null) =>
         fileContent,
       ),
     enabled: path !== null,
+    refetchInterval: (query) =>
+      query.state.data?.pending?.state === "pending" ? 1000 : false,
   });
 
 export const useFiles = (name: string, ref: string, enabled = true) =>

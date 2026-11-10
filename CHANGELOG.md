@@ -1,5 +1,23 @@
 # @fungi.computer/bonsai
 
+## 0.6.30
+
+### Patch Changes
+
+- Changes since 0.6.29:
+
+  - fix(bonsai): center the issue invitation at card width
+  - fix(ui): restore consistent first-use empty state panels
+  - fix(bonsai): give history filters full phone touch height
+  - fix(inkcap): finish responsive recovery and bundle proof
+  - fix(bonsai): complete first-use flow with Inkcap
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.4
+  - @fungi.computer/oyster@0.19.27
+  - @fungi.computer/trellis@0.10.6
+
 ## 0.6.29
 
 ### Patch Changes

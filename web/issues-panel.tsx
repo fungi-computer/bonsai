@@ -1,3 +1,8 @@
+import { FileText } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@fungi.computer/caps/components/button";
+import { FailureLine } from "@fungi.computer/caps/components/failure-line";
+import { editInFilesEditor } from "./transport.js";
 import { BonsaiBoard } from "./board.js";
 import { CardTitle } from "@fungi.computer/caps/components/card";
 /**
@@ -21,8 +26,8 @@ import {
   type IssueStatus,
 } from "@fungi.computer/issues";
 import { useMemo, useState } from "react";
-import { writeFirstIssue } from "./first-issue.js";
-import { useIssueFiles } from "./api.js";
+import { firstIssuePath, writeFirstIssue } from "./first-issue.js";
+import { useFile, useFilesEditor, useIssueFiles } from "./api.js";
 import { Failure, Loading } from "./parts.js";
 import { href, Link } from "./router.js";
 import { Markdown } from "./views.js";
@@ -144,13 +149,82 @@ export function IssuesPanel({
   refName: string;
   open: string | null;
 }) {
+  const client = useQueryClient();
+  const editor = useFilesEditor();
   const [creating, setCreating] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const files = useIssueFiles(repo, refName);
-  const report = useMemo(
-    () => (files.data ? inspectIssueTree(files.data.files) : null),
-    [files.data],
-  );
+  const firstPath = firstIssuePath.slice("issues/".length);
+  const first = useFile(repo, refName, firstIssuePath);
+  const saved = first.data?.pending;
+  const pending = saved?.state !== "synced" ? saved : undefined;
+  const visibleFiles = useMemo(() => {
+    const result = { ...files.data?.files };
+    if (
+      saved &&
+      (saved.state !== "synced" || result[firstPath] === undefined)
+    ) {
+      result[firstPath] = saved.text;
+    }
+    return result;
+  }, [files.data, firstPath, saved]);
+  const report = useMemo(() => inspectIssueTree(visibleFiles), [visibleFiles]);
+  const openEditor = () => {
+    setCreationError(null);
+    void editInFilesEditor(repo, refName, firstIssuePath).catch(
+      (error: unknown) => {
+        setCreationError(
+          error instanceof Error ? error.message : "The editor could not open",
+        );
+      },
+    );
+  };
+  const createIssue = () => {
+    setCreating(true);
+    setCreationError(null);
+    void writeFirstIssue(repo, refName)
+      .catch((error: unknown) => {
+        setCreationError(
+          error instanceof Error ? error.message : "The editor could not open",
+        );
+      })
+      .finally(() => {
+        setCreating(false);
+        void client.invalidateQueries({
+          queryKey: ["blob", repo, refName, firstIssuePath],
+        });
+        void files.refetch();
+      });
+  };
+  const pendingNotice = pending ? (
+    <div className="flex flex-wrap items-center gap-2 mb-4">
+      <Status
+        glyph="dot"
+        tone={pending.state === "pending" ? "info" : "warning"}
+        label={
+          pending.state === "pending"
+            ? "Saved · syncing"
+            : pending.state === "conflict"
+              ? "Saved · sync conflict"
+              : "Saved · sync failed"
+        }
+      />
+      {editor.data ? (
+        <Button size="sm" variant="outline" onClick={openEditor}>
+          Open saved issue in {editor.data.displayName ?? "editor"}
+        </Button>
+      ) : null}
+      {creationError ? (
+        <FailureLine
+          message={creationError}
+          onRetry={openEditor}
+          onDismiss={() => {
+            setCreationError(null);
+          }}
+        />
+      ) : null}
+    </div>
+  ) : null;
   if (files.isPending) return <Loading label="Loading issues" />;
   if (files.isError)
     return (
@@ -161,41 +235,44 @@ export function IssuesPanel({
         }}
       />
     );
-  if (report === null || Object.keys(files.data.files).length === 0)
+  if (first.isError)
+    return <Failure error={first.error} retry={() => void first.refetch()} />;
+  if (first.isPending) return <Loading label="Checking saved issues" />;
+  if (Object.keys(visibleFiles).length === 0)
     return (
-      <div>
+      <div className="mx-auto w-full max-w-[26rem]">
         <EmptyState
           variant="panel"
+          visual={<FileText aria-hidden="true" />}
           headingLevel={3}
           title="No issues yet"
-          description="Issues are Markdown files in your repo. Write the first one."
-          primaryAction={{
-            label: "Write the first issue",
-            pending: creating,
-            onSelect: () => {
-              setCreating(true);
-              setCreationError(null);
-              void writeFirstIssue(repo, refName)
-                .catch((error: unknown) => {
-                  setCreationError(
-                    error instanceof Error
-                      ? error.message
-                      : "The editor could not open",
-                  );
-                })
-                .finally(() => {
-                  setCreating(false);
-                });
-            },
-          }}
+          description="Track changes in Markdown files."
+          {...(editor.data
+            ? {
+                primaryAction: {
+                  label: "Write the first issue",
+                  pending: creating,
+                  onSelect: createIssue,
+                },
+              }
+            : {})}
         />
-        {creationError === null ? null : <p role="alert">{creationError}</p>}
+        {creationError === null ? null : (
+          <FailureLine
+            message={creationError}
+            onRetry={createIssue}
+            onDismiss={() => {
+              setCreationError(null);
+            }}
+          />
+        )}
       </div>
     );
-  const opened = open === null ? undefined : files.data.files[open];
+  const opened = open === null ? undefined : visibleFiles[open];
   if (open !== null && opened !== undefined)
     return (
       <div className="bonsai-issue">
+        {pendingNotice}
         <nav className="bonsai-crumbs" aria-label="Issue">
           <Link
             to={href({
@@ -230,101 +307,104 @@ export function IssuesPanel({
     { title: "Done", records: report.records.filter(done) },
   ];
   return (
-    <BonsaiBoard
-      rowHeight={0}
-      placements={[
-        { id: "issues", col: 0, row: 0, w: 3, h: 1 },
-        { id: "issue-help", col: 3, row: 0, w: 1, h: 1 },
-      ]}
-      phoneOrder={["issues", "issue-help"]}
-      tiles={[
-        {
-          id: "issues",
-          title: "Issues",
-          autoHeight: true,
-          body: (
-            <div className="space-y-4">
-              {report.status === "fail" ? (
-                <section
-                  className="caps-card caps-card-surface p-4 bonsai-issue-problems"
-                  aria-labelledby="issue-problems"
-                >
-                  <header className="bonsai-section-head">
-                    <CardTitle level={2} id="issue-problems">
-                      Issue files need fixing
-                    </CardTitle>
-                    <Badge size="sm" tone="error" variant="quiet">
-                      {report.diagnostics.length}
-                    </Badge>
-                  </header>
-                  <ul>
-                    {report.diagnostics
-                      .slice(0, 12)
-                      .map((diagnostic, index) => (
-                        <li key={`${diagnostic.path}:${String(index)}`}>
-                          <code>{diagnostic.path}</code>{" "}
-                          <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
-                            {diagnostic.detail}
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
-                </section>
-              ) : null}
-              {report.records.length === 0 ? (
-                <DataList className="bonsai-change-list" density="compact">
-                  {Object.keys(files.data.files).map((path) => (
-                    <DataRow key={path}>
-                      <Link
-                        to={href({
-                          page: "repo",
-                          repo,
-                          tab: "issues",
-                          ref: refName,
-                          path: "",
-                          file: path,
-                        })}
-                      >
-                        {path}
-                      </Link>
-                    </DataRow>
-                  ))}
-                </DataList>
-              ) : null}
-              {groups
-                .filter((group) => group.records.length > 0)
-                .map((group) => (
-                  <section key={group.title}>
-                    <DataListHeading level={3}>{group.title}</DataListHeading>
-                    <DataList>
-                      {group.records.map((issue) => (
-                        <IssueRow
-                          key={issue.id}
-                          repo={repo}
-                          refName={refName}
-                          issue={issue}
-                          records={report.records}
-                        />
-                      ))}
-                    </DataList>
+    <>
+      {pendingNotice}
+      <BonsaiBoard
+        rowHeight={0}
+        placements={[
+          { id: "issues", col: 0, row: 0, w: 3, h: 1 },
+          { id: "issue-help", col: 3, row: 0, w: 1, h: 1 },
+        ]}
+        phoneOrder={["issues", "issue-help"]}
+        tiles={[
+          {
+            id: "issues",
+            title: "Issues",
+            autoHeight: true,
+            body: (
+              <div className="space-y-4">
+                {report.status === "fail" ? (
+                  <section
+                    className="caps-card caps-card-surface p-4 bonsai-issue-problems"
+                    aria-labelledby="issue-problems"
+                  >
+                    <header className="bonsai-section-head">
+                      <CardTitle level={2} id="issue-problems">
+                        Issue files need fixing
+                      </CardTitle>
+                      <Badge size="sm" tone="error" variant="quiet">
+                        {report.diagnostics.length}
+                      </Badge>
+                    </header>
+                    <ul>
+                      {report.diagnostics
+                        .slice(0, 12)
+                        .map((diagnostic, index) => (
+                          <li key={`${diagnostic.path}:${String(index)}`}>
+                            <code>{diagnostic.path}</code>{" "}
+                            <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
+                              {diagnostic.detail}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
                   </section>
-                ))}
-            </div>
-          ),
-        },
-        {
-          id: "issue-help",
-          title: "How issues work",
-          autoHeight: true,
-          body: (
-            <p>
-              Issues are Markdown files under <code>issues/</code>. Agents and
-              people edit them with git. Dependencies link each issue to the
-              work that must finish first.
-            </p>
-          ),
-        },
-      ]}
-    />
+                ) : null}
+                {report.records.length === 0 ? (
+                  <DataList className="bonsai-change-list" density="compact">
+                    {Object.keys(visibleFiles).map((path) => (
+                      <DataRow key={path}>
+                        <Link
+                          to={href({
+                            page: "repo",
+                            repo,
+                            tab: "issues",
+                            ref: refName,
+                            path: "",
+                            file: path,
+                          })}
+                        >
+                          {path}
+                        </Link>
+                      </DataRow>
+                    ))}
+                  </DataList>
+                ) : null}
+                {groups
+                  .filter((group) => group.records.length > 0)
+                  .map((group) => (
+                    <section key={group.title}>
+                      <DataListHeading level={3}>{group.title}</DataListHeading>
+                      <DataList>
+                        {group.records.map((issue) => (
+                          <IssueRow
+                            key={issue.id}
+                            repo={repo}
+                            refName={refName}
+                            issue={issue}
+                            records={report.records}
+                          />
+                        ))}
+                      </DataList>
+                    </section>
+                  ))}
+              </div>
+            ),
+          },
+          {
+            id: "issue-help",
+            title: "How issues work",
+            autoHeight: true,
+            body: (
+              <p>
+                Issues are Markdown files under <code>issues/</code>. Agents and
+                people edit them with git. Dependencies link each issue to the
+                work that must finish first.
+              </p>
+            ),
+          },
+        ]}
+      />
+    </>
   );
 }

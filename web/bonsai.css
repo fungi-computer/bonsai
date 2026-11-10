@@ -532,14 +532,13 @@ body {
   position: relative;
 }
 .bonsai-history-commits a {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-xs);
+  display: block;
+  height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.bonsai-history-commits p {
+.bonsai-history-commits .bonsai-muted {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

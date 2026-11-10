@@ -35,7 +35,7 @@ import {
   Failure,
   Loading,
 } from "./parts.js";
-import { firstLine, relativeTime, shortHash } from "./format.js";
+import { actorLabel, firstLine, relativeTime, shortHash } from "./format.js";
 import { href, Link, useRouter } from "./router.js";
 import {
   changeStatusLabel,
@@ -527,7 +527,7 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
                   {agent ? (
                     <AgentName name={agent} colors={colors} />
                   ) : (
-                    commit.author.name
+                    actorLabel(commit.author.name)
                   )}{" "}
                   · {shortHash(commit.hash)} ·{" "}
                   {relativeTime(commit.committedAt * 1000)}

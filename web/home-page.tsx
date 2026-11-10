@@ -97,13 +97,16 @@ function HomeNetwork({
 const nextSteps = [
   [
     "Create a repository",
-    "Name it. Bonsai commits a README so it has content.",
+    "Name your collection of files. Bonsai saves a README to start its history.",
   ],
   [
-    "Agents fork it",
-    "Each Agent works on its own fork and never touches main.",
+    "Work in separate copies",
+    "Each AI helper gets a fork: its own copy, separate from the shared version.",
   ],
-  ["You merge", "Review a change, merge it, and watch the network graph grow."],
+  [
+    "Review and combine",
+    "Merge the changes you want into main, the shared version.",
+  ],
 ] as const;
 
 /** What happens after the first repository, so the empty state shows its product. */
@@ -343,7 +346,7 @@ export function HomePage({ live }: { live: LiveState }) {
           <SetupNotice
             variant="panel"
             need="Bonsai needs Git access to save your repositories"
-            cause="Every Agent gets its own fork; watch them merge back here."
+            cause="Keep files and their history, with a separate working copy for each AI helper."
             visual={<GitBranch aria-hidden="true" />}
             fix={{
               label: "Approve Git access",
@@ -355,9 +358,10 @@ export function HomePage({ live }: { live: LiveState }) {
         ) : (
           <>
             <EmptyState
-              variant="panel"
+              variant="plain"
+              visual="blobs"
               title="Start your first repository"
-              description="Every Agent gets its own fork; watch them merge back here."
+              description="Keep files and their history, with a separate working copy for each AI helper."
               primaryAction={{
                 label: "New repository",
                 onSelect: () => {

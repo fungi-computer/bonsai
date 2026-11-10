@@ -153,8 +153,8 @@ export function Overview({
           }}
         />
         <p className="text-xs text-[var(--stipe-fg-muted)]">
-          Branches and forks · hollow nodes are merges · select a lane for its
-          change, or a commit to read it
+          Each line is a working copy; each dot is a saved change. Select one to
+          see its history.
         </p>
       </>
     ),
@@ -250,8 +250,14 @@ export function Overview({
       <EmptyState
         variant="quiet"
         headingLevel={3}
-        title="Nothing next"
-        description="No open issues are waiting on anyone."
+        title="Plan your next change"
+        description="Write an issue to describe what you want to do next."
+        primaryAction={{
+          label: "Open Issues",
+          onSelect: () => {
+            go(repoLink("issues"));
+          },
+        }}
       />,
     );
   if (files.isError)
@@ -328,7 +334,7 @@ export function Overview({
       repo={route.repo}
       definitions={tiles}
       controlsTarget={controlsTarget}
-      compactHero={(graph.data?.nodes.length ?? Infinity) <= 3}
+      compactHero={(graph.data?.nodes.length ?? 0) <= 3}
     />
   );
 }

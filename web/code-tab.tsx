@@ -7,7 +7,13 @@ import { editInFilesEditor, callMethod } from "./transport.js";
 import type { RepoDetail } from "../shared/contract.js";
 import { useFiles, useFile, useFilesEditor } from "./api.js";
 import { BonsaiBoard } from "./board.js";
-import { firstLine, formatBytes, relativeTime, shortHash } from "./format.js";
+import {
+  actorLabel,
+  firstLine,
+  formatBytes,
+  relativeTime,
+  shortHash,
+} from "./format.js";
 import { Loading, Failure } from "./parts.js";
 import { QuickSetup } from "./quick-setup.js";
 import { href, Link, useRouter, type Route } from "./router.js";
@@ -96,7 +102,11 @@ export function CodeTab({
           <Disclosure
             open={treeOpen}
             onOpenChange={setTreeOpen}
-            summary={`Files · ${shown ?? ref}`}
+            summary={
+              <span className="inline-flex items-center max-sm:min-h-[var(--caps-touch-target)]">
+                Files · {shown ?? ref}
+              </span>
+            }
           >
             {tree}
           </Disclosure>
@@ -212,7 +222,8 @@ export function CodeTab({
                 ) : null}
                 {files.data ? (
                   <p className="text-sm text-[var(--stipe-fg-muted)]">
-                    Latest commit · {files.data.commit.author.name} ·{" "}
+                    Latest commit · {actorLabel(files.data.commit.author.name)}{" "}
+                    ·{" "}
                     <Link
                       to={href({
                         page: "commit",

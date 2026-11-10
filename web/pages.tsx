@@ -1,3 +1,4 @@
+import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
 import { CodeTab } from "./code-tab.js";
 import {
   Tabs,
@@ -27,7 +28,7 @@ import {
   type LiveState,
 } from "./api.js";
 import { DiffView } from "./views.js";
-import { relativeTime, shortHash } from "./format.js";
+import { actorLabel, relativeTime, shortHash } from "./format.js";
 import { CommitTree } from "./commit-tree.js";
 import {
   AgentMark,
@@ -48,6 +49,7 @@ function useColors(): AgentColors {
 export type RepoRoute = Extract<Route, { page: "repo" }>;
 
 function ChangesTab({ repo, colors }: { repo: string; colors: AgentColors }) {
+  const { go } = useRouter();
   const changes = useChanges(repo);
   if (changes.isPending) return <Loading label="Loading changes" />;
   if (changes.isError)
@@ -59,7 +61,29 @@ function ChangesTab({ repo, colors }: { repo: string; colors: AgentColors }) {
         }}
       />
     );
-  if (changes.data.changes.length === 0) return null;
+  if (changes.data.changes.length === 0)
+    return (
+      <EmptyState
+        variant="plain"
+        title="Review changes here"
+        description="Changes from separate working copies appear here, ready for you to review and combine."
+        primaryAction={{
+          label: "Open Code",
+          onSelect: () => {
+            go(
+              href({
+                page: "repo",
+                repo,
+                tab: "code",
+                ref: null,
+                path: "",
+                file: null,
+              }),
+            );
+          },
+        }}
+      />
+    );
   return (
     <Card variant="outline" density="compact" data-tile="changes">
       <div className="min-w-0 p-3">
@@ -203,9 +227,21 @@ function CommitsTab({
         <div className="min-w-0 p-3">
           <Tabs value={filter} onValueChange={setFilter}>
             <TabsList variant="segmented" aria-label="Commit authors">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="agent">Agents</TabsTrigger>
-              <TabsTrigger value="human">People</TabsTrigger>
+              <TabsTrigger value="all">
+                <span className="inline-flex items-center max-sm:min-h-[var(--caps-touch-target)]">
+                  All
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="agent">
+                <span className="inline-flex items-center max-sm:min-h-[var(--caps-touch-target)]">
+                  Agents
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="human">
+                <span className="inline-flex items-center max-sm:min-h-[var(--caps-touch-target)]">
+                  People
+                </span>
+              </TabsTrigger>
             </TabsList>
             <TabsContent value={filter}>
               <p
@@ -217,12 +253,26 @@ function CommitsTab({
                   : `${route.repo}/${selectedRef}`}{" "}
                 · newest first
               </p>
-              <CommitTree
-                graph={shown}
-                colors={colors}
-                selected={current?.hash}
-                onSelect={open}
-              />
+              {nodes.length === 0 ? (
+                <EmptyState
+                  variant="quiet"
+                  title="No matching changes"
+                  description="This author filter has no saved changes yet."
+                  primaryAction={{
+                    label: "Show all history",
+                    onSelect: () => {
+                      setFilter("all");
+                    },
+                  }}
+                />
+              ) : (
+                <CommitTree
+                  graph={shown}
+                  colors={colors}
+                  selected={current?.hash}
+                  onSelect={open}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -410,7 +460,7 @@ export function CommitPage({ repo, hash }: { repo: string; hash: string }) {
             {agent ? (
               <AgentName name={agent} colors={colors} />
             ) : (
-              commit.author.name
+              actorLabel(commit.author.name)
             )}
             <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
               {" "}

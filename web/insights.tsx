@@ -181,12 +181,12 @@ function Grid({
           editing
             ? []
             : [
+                "readme",
+                "next",
                 "network",
                 "live",
                 "changes",
                 "actors",
-                "next",
-                "readme",
                 "contributors",
                 "ages",
                 "churn",
@@ -224,7 +224,7 @@ export function OverviewBoard({
   repo: string;
   definitions: BoardTile[];
   controlsTarget: HTMLElement | null;
-  /** A young repository: Network and Live take one row, not two. */
+  /** A young repository starts with files and its next task. */
   compactHero?: boolean;
 }) {
   const layout = useQuery({
@@ -244,7 +244,7 @@ export function OverviewBoard({
     );
   return (
     <Grid
-      key={repo}
+      key={`${repo}:${layout.data.tiles ? "saved" : compactHero ? "young" : "mature"}`}
       repo={repo}
       initial={
         (
