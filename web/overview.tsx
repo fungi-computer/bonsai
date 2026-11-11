@@ -177,7 +177,9 @@ export function Overview({
       <>
         {working.length > 0 ? (
           <>
-            <DataListHeading>Working now</DataListHeading>
+            <DataListHeading className="bonsai-working-heading">
+              Working now
+            </DataListHeading>
             <WorkingNow events={activity} colors={colors} />
           </>
         ) : null}
@@ -232,7 +234,7 @@ export function Overview({
     add(
       "next",
       <>
-        <DataList>
+        <DataList className="bonsai-next-list">
           {next.slice(0, 3).map((issue) => (
             <DataRow key={issue.id}>
               <Link to={repoLink("issues", issue.path)}>{issue.title}</Link>

@@ -442,7 +442,11 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
               </>
             ) : null}
           </p>
-          {change.body ? <Markdown text={change.body} /> : null}
+          {change.body ? (
+            <div className="bonsai-change-body">
+              <Markdown text={change.body} />
+            </div>
+          ) : null}
           {change.conflict ? (
             <Alert
               tone="warning"

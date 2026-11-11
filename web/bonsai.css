@@ -158,6 +158,10 @@ body {
   padding: 0;
   list-style: none;
 }
+/* The rows below have no row padding, so the label starts at their edge. */
+.bonsai-working-heading {
+  padding-inline: 0;
+}
 .bonsai-working li {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -393,6 +397,17 @@ body {
 .bonsai-markdown.bonsai-markdown-tile {
   padding: 0;
 }
+/* The change description starts at the meta line's edge. */
+.bonsai-change-body > .bonsai-markdown {
+  padding-inline: 0;
+}
+/* Tile bodies start at the tile's own padding, like the text around them. */
+.bonsai-next-list > .list-row {
+  padding-inline: 0;
+}
+.bonsai-tile-content .caps-screen-cells {
+  margin-inline: calc(var(--spacing-md) * -1);
+}
 .bonsai-change-list .list-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -485,6 +500,10 @@ body {
   }
 }
 @media (max-width: 640px) {
+  /* Zoom buttons get their own row above the lanes instead of covering them. */
+  .bonsai-network {
+    padding-block-start: var(--caps-touch-target, 2.75rem);
+  }
   .bonsai-page {
     padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-2xl);
   }

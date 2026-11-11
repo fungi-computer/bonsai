@@ -322,7 +322,9 @@ export function HomePage({ live }: { live: LiveState }) {
         <>
           {workingNow(events.data.events).length ? (
             <>
-              <DataListHeading>Working now</DataListHeading>
+              <DataListHeading className="bonsai-working-heading">
+                Working now
+              </DataListHeading>
               <WorkingNow events={events.data.events} colors={colors} />
             </>
           ) : null}

@@ -1,5 +1,21 @@
 # @fungi.computer/bonsai
 
+## 0.6.43
+
+### Patch Changes
+
+- Changes since 0.6.42:
+
+  - fix(bonsai): start the Working now label at its rows' edge
+  - fix(tourtois,bonsai): tighten desktop, Settings and Bonsai alignment
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.7
+  - @fungi.computer/oyster@0.20.5
+  - @fungi.computer/trellis@0.10.11
+
 ## 0.6.42
 
 ### Patch Changes
