@@ -527,7 +527,10 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
                   {agent ? (
                     <AgentName name={agent} colors={colors} />
                   ) : (
-                    actorLabel(commit.author.name)
+                    actorLabel(
+                      commit.author.name,
+                      colors.get(commit.author.name)?.you,
+                    )
                   )}{" "}
                   · {shortHash(commit.hash)} ·{" "}
                   {relativeTime(commit.committedAt * 1000)}

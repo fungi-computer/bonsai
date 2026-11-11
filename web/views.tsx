@@ -70,6 +70,14 @@ export function FileView({ path, text }: { path: string; text: string }) {
   );
 }
 
+/**
+ * Syntax colors include red (headings, keywords), which reads as a removal on
+ * the green added-line row. Added lines show their text in the normal
+ * foreground so an addition reads as an addition.
+ */
+const addedTextCSS =
+  '[data-line-type="change-addition"] [data-content] span, [data-line-type="change-addition"] span { color: inherit !important; }';
+
 export function DiffView({ file }: { file: FileDiff }) {
   const themeType = useThemeType();
   const oldFile = useMemo(
@@ -108,6 +116,7 @@ export function DiffView({ file }: { file: FileDiff }) {
           overflow: "scroll",
           themeType,
           theme: pierreTheme,
+          unsafeCSS: addedTextCSS,
         }}
       />
     </section>

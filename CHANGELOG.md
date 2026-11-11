@@ -1,5 +1,27 @@
 # @fungi.computer/bonsai
 
+## 0.6.42
+
+### Patch Changes
+
+- Changes since 0.6.41:
+
+  - fix(caps): put the panel on the card face and cap Bonsai Changes width
+  - fix(caps): make the empty-state panel a solid card, not a dashed drop zone
+  - fix(bonsai): solid cards, guarded one-click starters, phone tab gap
+  - fix(bonsai): empty Changes card, one-click starter repos, quieter Arrange
+    tiles
+  - fix(bonsai): tidy first-run Code, Changes, consent, tabs and diff
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/caps@0.10.6
+  - @fungi.computer/nacre@0.4.6
+  - @fungi.computer/oyster@0.20.4
+  - @fungi.computer/trellis@0.10.10
+
 ## 0.6.41
 
 ### Patch Changes

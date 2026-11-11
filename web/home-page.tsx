@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DataListHeading } from "@fungi.computer/caps/components/data-list";
 import { Status } from "@fungi.computer/caps/components/status";
 import { EmptyState } from "@fungi.computer/caps/blocks/empty-state";
 import { GitBranch } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@fungi.computer/caps/components/button";
-import { SetupNotice } from "@fungi.computer/caps/blocks/setup-notice";
 import { NewRepositoryDialog } from "./new-repository.js";
 import { useHostGitAccess } from "./host-access.js";
 import { requestGitAccess } from "./transport.js";
@@ -14,6 +14,7 @@ import {
   useGraph,
   useChanges,
   useEvents,
+  createRepository,
   type LiveState,
 } from "./api.js";
 import { BonsaiBoard, type BoardTile } from "./board.js";
@@ -186,7 +187,47 @@ export function HomePage({ live }: { live: LiveState }) {
     name: "",
     count: 0,
   });
-  const startWith = (name: string) => {
+  const client = useQueryClient();
+  const { go } = useRouter();
+  // A suggested name creates the repository with a README right away; if that
+  // fails the form opens, prefilled, with the error shown.
+  // The ref closes the gap before the busy state renders (a fast double click).
+  const starting = useRef(false);
+  const [startingName, setStartingName] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
+  const createNamed = async (name: string): Promise<void> => {
+    if (starting.current) return;
+    starting.current = true;
+    setStartingName(name);
+    const result = await createRepository({ name, readme: true }).then(
+      (created) => ({ created }),
+      (error: unknown) => ({ error }),
+    );
+    starting.current = false;
+    setStartingName(null);
+    if ("created" in result) {
+      await client.invalidateQueries({ queryKey: ["repos"] });
+      go(
+        href({
+          page: "repo",
+          repo: result.created.name,
+          tab: "overview",
+          ref: null,
+          file: null,
+          path: "",
+        }),
+      );
+      return;
+    }
+    startWith(
+      name,
+      result.error instanceof Error
+        ? result.error.message
+        : "Couldn't create it.",
+    );
+  };
+  const startWith = (name: string, error: string | null = null) => {
+    setStartError(error);
     setPreset((current) => ({ name, count: current.count + 1 }));
     setCreating(true);
   };
@@ -343,19 +384,19 @@ export function HomePage({ live }: { live: LiveState }) {
         />
       ) : repos.data.repos.length === 0 ? (
         missing ? (
-          <SetupNotice
-            className="bonsai-onboarding"
-            variant="panel"
-            need="Bonsai needs Git access to save your repositories"
-            cause="Keep files and their history, with a separate working copy for each AI helper."
-            visual={<GitBranch aria-hidden="true" />}
-            fix={{
-              label: "Approve Git access",
-              onSelect: () => void approveAccess(),
-              pending: asking,
-            }}
-            waitingFor="your answer"
-          />
+          <div className="bonsai-onboarding">
+            <EmptyState
+              variant="panel"
+              visual={<GitBranch aria-hidden="true" />}
+              title="Bonsai needs Git access to save your repositories"
+              description="Keep files and their history, with a separate working copy for each AI helper."
+              primaryAction={{
+                label: "Approve Git access",
+                onSelect: () => void approveAccess(),
+                pending: asking,
+              }}
+            />
+          </div>
         ) : (
           <div className="bonsai-onboarding">
             <EmptyState
@@ -371,8 +412,10 @@ export function HomePage({ live }: { live: LiveState }) {
               }}
               suggestions={["notes", "website", "experiments"].map((label) => ({
                 label,
+                pending: startingName === label,
+                disabled: startingName !== null,
                 onSelect: () => {
-                  startWith(label);
+                  void createNamed(label);
                 },
               }))}
             />
@@ -400,6 +443,7 @@ export function HomePage({ live }: { live: LiveState }) {
         open={creating}
         onOpenChange={setCreating}
         initialName={preset.name}
+        initialError={startError}
       />
       <BonsaiBoard
         rowHeight={0}

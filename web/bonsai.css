@@ -696,3 +696,20 @@ body {
 .bonsai-next-steps li p + p {
   color: var(--stipe-fg-muted);
 }
+
+/* Phone: six repository tabs fit the row instead of clipping at either end. */
+@media (max-width: 480px) {
+  .bonsai-repo
+    [aria-label="Repository sections"]
+    .caps-navigation-rail-content {
+    gap: var(--spacing-2xs);
+    justify-content: space-between;
+  }
+  .bonsai-repo
+    [aria-label="Repository sections"]
+    .caps-navigation-rail-content
+    > a {
+    padding-inline: var(--spacing-xs);
+    font-size: var(--text-sm);
+  }
+}

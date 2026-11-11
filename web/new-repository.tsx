@@ -24,11 +24,14 @@ export function NewRepositoryDialog({
   open,
   onOpenChange,
   initialName = "",
+  initialError = null,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** A suggested name to start from, chosen from the empty state. */
   initialName?: string;
+  /** Why a one-click start failed, shown when the form opens instead. */
+  initialError?: string | null;
 }) {
   const client = useQueryClient();
   const { go } = useRouter();
@@ -38,7 +41,7 @@ export function NewRepositoryDialog({
   const [creating, setCreating] = useState(false);
   const [needsAccess, setNeedsAccess] = useState(false);
   const [waiting, setWaiting] = useState(false);
-  const [failure, setFailure] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(initialError);
   const problem = repoNameProblem(name);
   const shownProblem = touched ? problem : null;
 

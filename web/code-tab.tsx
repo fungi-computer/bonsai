@@ -14,7 +14,7 @@ import {
   relativeTime,
   shortHash,
 } from "./format.js";
-import { Loading, Failure } from "./parts.js";
+import { Loading, Failure, type AgentColors } from "./parts.js";
 import { QuickSetup } from "./quick-setup.js";
 import { href, Link, useRouter, type Route } from "./router.js";
 import { FileView, Markdown, RepoTree } from "./views.js";
@@ -22,9 +22,11 @@ import { FileView, Markdown, RepoTree } from "./views.js";
 export function CodeTab({
   route,
   detail,
+  colors,
 }: {
   route: Extract<Route, { page: "repo" }>;
   detail: RepoDetail;
+  colors: AgentColors;
 }) {
   const { go } = useRouter();
   const [wide, setWide] = useState(false);
@@ -222,7 +224,11 @@ export function CodeTab({
                 ) : null}
                 {files.data ? (
                   <p className="text-sm text-[var(--stipe-fg-muted)]">
-                    Latest commit · {actorLabel(files.data.commit.author.name)}{" "}
+                    Latest commit ·{" "}
+                    {actorLabel(
+                      files.data.commit.author.name,
+                      colors.get(files.data.commit.author.name)?.you,
+                    )}{" "}
                     ·{" "}
                     <Link
                       to={href({

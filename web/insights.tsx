@@ -149,7 +149,7 @@ function Grid({
               ) : (
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => {
                     setEditing(true);
                   }}

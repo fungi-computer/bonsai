@@ -193,14 +193,15 @@ export function RepoNavigation({
                 ))}
             </Select>
           </div>
-          <div className="hidden max-w-sm md:block" ref={desktopClone}>
+          <div className="hidden max-w-lg md:block" ref={desktopClone}>
             <CopyField
               value={clone}
               fieldLabel="Clone repository"
               displayValue={detail.cloneUrl}
             />
             <p className="mt-1 text-sm text-[var(--stipe-fg-muted)]">
-              Run from my-oyster.
+              Paste this into a terminal to copy the repository to your
+              computer.
             </p>
           </div>
           <div className="md:hidden">
@@ -231,7 +232,8 @@ export function RepoNavigation({
                   displayValue={detail.cloneUrl}
                 />
                 <p className="mt-1 text-sm text-[var(--stipe-fg-muted)]">
-                  Run from my-oyster.
+                  Paste this into a terminal to copy the repository to your
+                  computer.
                 </p>
               </div>
             </Popover>

@@ -15,7 +15,7 @@ import { ChangeGroups, needsAttention } from "./change-rows.js";
 import { RepoNavigation } from "./repo-navigation.js";
 import { RepoSettings } from "./repo-settings.js";
 /** Bonsai's pages: the repository list, a repository, and a commit. */
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, GitPullRequest } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { RepoDetail } from "../shared/contract.js";
 import {
@@ -49,7 +49,6 @@ function useColors(): AgentColors {
 export type RepoRoute = Extract<Route, { page: "repo" }>;
 
 function ChangesTab({ repo, colors }: { repo: string; colors: AgentColors }) {
-  const { go } = useRouter();
   const changes = useChanges(repo);
   if (changes.isPending) return <Loading label="Loading changes" />;
   if (changes.isError)
@@ -64,24 +63,11 @@ function ChangesTab({ repo, colors }: { repo: string; colors: AgentColors }) {
   if (changes.data.changes.length === 0)
     return (
       <EmptyState
-        variant="plain"
-        title="Review changes here"
-        description="Changes from separate working copies appear here, ready for you to review and combine."
-        primaryAction={{
-          label: "Open Code",
-          onSelect: () => {
-            go(
-              href({
-                page: "repo",
-                repo,
-                tab: "code",
-                ref: null,
-                path: "",
-                file: null,
-              }),
-            );
-          },
-        }}
+        variant="panel"
+        className="mx-auto w-full max-w-[26rem]"
+        visual={<GitPullRequest aria-hidden="true" />}
+        title="No changes yet"
+        description="A change appears when an AI helper finishes work in its own working copy. You review it here, then combine it into main."
       />
     );
   return (
@@ -354,7 +340,7 @@ function RepoContent({ route, live }: { route: RepoRoute; live: LiveState }) {
         <section className="bonsai-main">
           {tab === "code" ? (
             <>
-              <CodeTab route={route} detail={detail.data} />
+              <CodeTab route={route} detail={detail.data} colors={colors} />
             </>
           ) : null}
           {tab === "commits" ? (
@@ -460,7 +446,10 @@ export function CommitPage({ repo, hash }: { repo: string; hash: string }) {
             {agent ? (
               <AgentName name={agent} colors={colors} />
             ) : (
-              actorLabel(commit.author.name)
+              actorLabel(
+                commit.author.name,
+                colors.get(commit.author.name)?.you,
+              )
             )}
             <span className="text-sm text-[var(--stipe-fg-muted)] bonsai-muted">
               {" "}
