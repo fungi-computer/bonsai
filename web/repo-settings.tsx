@@ -24,7 +24,7 @@ export function RepoSettings({ repo }: { repo: string }) {
     onSuccess: async () => {
       client.removeQueries({ queryKey: ["repo", repo] });
       await client.invalidateQueries({ queryKey: ["repos"] });
-      go("/");
+      go("/", { replace: true });
     },
   });
   const failure = deletion.error?.message;

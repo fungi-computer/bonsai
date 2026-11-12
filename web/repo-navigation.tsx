@@ -181,6 +181,7 @@ export function RepoNavigation({
                     path: "",
                     file: null,
                   }),
+                  { replace: true },
                 );
               }}
             >

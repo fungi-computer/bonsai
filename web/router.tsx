@@ -1,13 +1,16 @@
 /**
- * App navigation stays in memory. Numbered Changes also accept a hash link
- * when the frame opens, or when its hash changes.
+ * App navigation stays in memory, in an App history. Numbered Changes also
+ * accept a hash link when the frame opens, or when its hash changes.
  */
 import * as z from "zod";
+import { createAppHistory, type HostNavigation } from "@fungi.computer/agar";
+import { useHostNavigation } from "@fungi.computer/agar/react";
 import {
   createContext,
   useContext,
   useEffect,
   useState,
+  useSyncExternalStore,
   type AnchorHTMLAttributes,
   type MouseEvent,
   type ReactNode,
@@ -89,29 +92,67 @@ export function href(route: Route): string {
   return `/${encodeURIComponent(route.repo)}${query ? `?${query}` : ""}`;
 }
 
-export type RouterValue = Readonly<{ route: Route; go: (to: string) => void }>;
+export type GoOptions = Readonly<{
+  /** Swap the current page instead of adding a history step. */
+  replace?: boolean;
+}>;
+
+export type RouterValue = Readonly<{
+  route: Route;
+  go: (to: string, options?: GoOptions) => void;
+}>;
 
 const RouterContext = createContext<RouterValue | null>(null);
 
-export function RouterProvider({ children }: { children: ReactNode }) {
-  const [path, setPath] = useState(() =>
-    location.hash.startsWith("#change/") ? location.hash : "/",
+const startPath = (): string =>
+  location.hash.startsWith("#change/") ? location.hash : "/";
+
+/**
+ * Every page move is a history entry: the Route's address. `go` pushes;
+ * `go(to, { replace: true })` swaps the current entry for changes that are
+ * the same page refined (a branch choice) or a page that no longer exists
+ * (a deleted repository). Moving to the page already shown does nothing.
+ * The window's Back and Forward walk this history; Back from the first page
+ * is left to the host.
+ */
+export function RouterProvider({
+  navigation,
+  children,
+}: {
+  navigation?: HostNavigation | null | undefined;
+  children: ReactNode;
+}) {
+  const [history] = useState(() => createAppHistory(startPath()));
+  const { current, canGoBack, canGoForward } = useSyncExternalStore(
+    (listener) => history.subscribe(listener),
+    () => history.get(),
   );
   useEffect(() => {
     const changed = () => {
-      setPath(location.hash.startsWith("#change/") ? location.hash : "/");
+      const next = startPath();
+      if (next !== history.get().current) history.push(next);
     };
     window.addEventListener("hashchange", changed);
     return () => {
       window.removeEventListener("hashchange", changed);
     };
-  }, []);
-  const go = (to: string) => {
-    setPath(to);
+  }, [history]);
+  useEffect(() => {
     scrollTo({ top: 0 });
+  }, [current]);
+  useHostNavigation(navigation, {
+    canGoBack,
+    canGoForward,
+    onBack: () => history.back(),
+    onForward: () => history.forward(),
+  });
+  const go = (to: string, options?: GoOptions) => {
+    if (to === history.get().current) return;
+    if (options?.replace) history.replace(to);
+    else history.push(to);
   };
   return (
-    <RouterContext.Provider value={{ route: parseRoute(path), go }}>
+    <RouterContext.Provider value={{ route: parseRoute(current), go }}>
       {children}
     </RouterContext.Provider>
   );

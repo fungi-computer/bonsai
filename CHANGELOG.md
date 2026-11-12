@@ -1,5 +1,28 @@
 # @fungi.computer/bonsai
 
+## 0.7.0
+
+### Minor Changes
+
+- Changes since 0.6.47:
+
+  - feat(bonsai): give Bonsai a real Back/Forward history
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.10.0
+  - @fungi.computer/caps@0.11.0
+  - @fungi.computer/nacre@0.5.0
+  - @fungi.computer/oyster@0.21.0
+  - @fungi.computer/trellis@0.11.0
+  - @fungi.computer/braid@0.4.9
+  - @fungi.computer/workflows-wire@0.4.9
+
 ## 0.6.47
 
 ### Patch Changes

@@ -71,7 +71,7 @@ mountApp(
     connect(app);
     return (
       <StrictMode>
-        <RouterProvider>
+        <RouterProvider navigation={app?.window.navigation}>
           <Shell app={app} />
         </RouterProvider>
       </StrictMode>
