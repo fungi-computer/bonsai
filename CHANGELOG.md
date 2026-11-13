@@ -1,5 +1,24 @@
 # @fungi.computer/bonsai
 
+## 0.8.0
+
+### Minor Changes
+
+- Changes since 0.7.11:
+
+  - feat(computer): say a command ended because the Computer went to sleep
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.11.0
+  - @fungi.computer/oyster@0.24.0
+  - @fungi.computer/trellis@0.11.5
+  - @fungi.computer/braid@0.4.11
+  - @fungi.computer/nacre@0.5.4
+  - @fungi.computer/workflows-wire@0.4.11
+
 ## 0.7.11
 
 ### Patch Changes
