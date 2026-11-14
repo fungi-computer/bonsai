@@ -1,5 +1,26 @@
 # @fungi.computer/bonsai
 
+## 0.9.0
+
+### Minor Changes
+
+- Changes since 0.8.7:
+
+  - feat(oyster): app callers carry owner, admin or member from the shared role
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.16.0
+  - @fungi.computer/oyster@0.29.0
+  - @fungi.computer/puffball@0.9.0
+  - @fungi.computer/trellis@0.14.1
+  - @fungi.computer/braid@0.4.17
+  - @fungi.computer/nacre@0.6.4
+  - @fungi.computer/workflows-wire@0.4.17
+
 ## 0.8.7
 
 ### Patch Changes
