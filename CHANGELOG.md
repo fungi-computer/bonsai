@@ -1,5 +1,28 @@
 # @fungi.computer/bonsai
 
+## 0.9.12
+
+### Patch Changes
+
+- Changes since 0.9.11:
+
+  - fix: isolate Oyster previews and refuse sibling requests
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.18.2
+  - @fungi.computer/caps@0.12.0
+  - @fungi.computer/nacre@0.7.0
+  - @fungi.computer/oyster@0.34.0
+  - @fungi.computer/watchdog@0.1.4
+  - @fungi.computer/trellis@0.15.5
+  - @fungi.computer/braid@0.4.21
+  - @fungi.computer/workflows-wire@0.4.21
+  - @fungi.computer/puffball@0.9.1
+
 ## 0.9.11
 
 ### Patch Changes

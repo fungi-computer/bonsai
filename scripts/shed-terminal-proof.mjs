@@ -90,39 +90,17 @@ const origin = `http://127.0.0.1:${port}`;
 // proof of this standalone worker already uses (edit-in-inkcap-live,
 // tourtois-home, landed-push, workflows, agents-sandbox).
 //
-// Opus-PT's reviewed fix for the Ports tray additionally calls for
-// OYSTER_PREVIEW_ORIGIN (packages/oyster/src/standalone/preview.ts's
-// previewOrigins; packages/oyster/src/standalone/computer.ts:625-626 returns
-// port_previews_not_configured without it) and dropping --local-upstream
-// for --local-protocol https, since --local-upstream rewrites every
-// request's Host to the same single value and the preview popup can never
-// reach a second, distinct tunnel origin through it. Tried exactly that
-// (OYSTER_PREVIEW_ORIGIN=https://127.0.0.1:<port> alongside
-// OYSTER_ORIGIN=https://localhost:<port>, --local-protocol https,
-// NODE_TLS_REJECT_UNAUTHORIZED=0 for this script's own Node-side fetches,
-// ignoreHTTPSErrors on the browser context) and it broke something more
-// fundamental: the scratch vmd fixture's own --worker callback is a fixed
-// plain-HTTP URL set at vmd's own launch (http://127.0.0.1:<this port>,
-// from s5-vm-fixture.sh), and workerd's now-HTTPS-only local listener
-// refuses that plaintext callback outright — confirmed directly in
-// workerd's own log: "error accepting tls connection ... OpenSSL error;
-// message = error:1000009c:SSL routines:OPENSSL_internal:HTTP_REQUEST".
-// Every Computer-backed call then retried twice at 30s and failed (the
-// same two-attempts-at-30s shape Sonnet-SG found for Workspace push).
-// Fixing that needs vmd restarted with a matching https callback — not
-// something to do unilaterally to a VM shared with Sonnet-SG's S9 work
-// mid-session ("keep the VM up until S9 is green"). Reverted to the
-// known-good --local-upstream transport for now; OYSTER_PREVIEW_ORIGIN
-// stays set (harmless, satisfies half the fix) but the Ports tray itself
-// is not expected to pass until this is resolved — see the READY/STATUS
-// report for the exact finding and the open question.
+// Preview links require a separate wildcard domain. This fixture's fixed
+// plain-HTTP VM callback requires --local-upstream, which rewrites Host;
+// it proves the Ports affordance, not a preview popup. The isolated HTTPS
+// popup is exercised by Oyster's preview-popup.browser.mjs fixture.
 const tenantHost = "oyster.test";
 const previewHost = "oyster-preview.test";
 const vars = {
   ...computerVars,
   OYSTER_OWNER_KEY: key,
   OYSTER_ORIGIN: `https://${tenantHost}`,
-  OYSTER_PREVIEW_ORIGIN: `https://${previewHost}`,
+  OYSTER_PREVIEW_DOMAIN: previewHost,
   OYSTER_HOME_INSTALLATION: "tourtois",
 };
 const worker = spawn(
@@ -620,23 +598,9 @@ try {
         exact: true,
       });
       await expect(openPreview).toBeVisible({ timeout: 30_000 });
-      // Stop here, by CTO decision: this VM fixture's wrangler runs under
-      // --local-upstream, which rewrites every request's Host to one fixed
-      // value, so the popup itself can never reach a second, distinct
-      // preview-tunnel origin through it (confirmed directly: the popup
-      // opens but its own "Directory listing" heading never arrives,
-      // because the popup's request never reaches the real backend). The
-      // real fix (a distinct HTTPS preview origin) needs --local-protocol
-      // https, which this VM fixture's vmd cannot yet speak back to
-      // (tooling/celld-platform/computer-vm/vmd.mjs's proxyHandlers leaks
-      // TLS socket listeners on its https branch — a separate, logged
-      // bug). The live demo runs on Cloudflare containers with a real
-      // certificate and a real preview origin, not this fixture, so its
-      // own rehearsal is the popup's real end-to-end proof; this proof
-      // asserts everything the fixture CAN reach for real: the process
-      // starts, Ports lists it, expose succeeds, and the preview
-      // affordance renders with the right port — then moves straight to
-      // Stop.
+      // This VM fixture rewrites Host, so it proves expose and the preview
+      // affordance only. Oyster's isolated HTTPS browser fixture checks the
+      // popup; no deployed preview or wildcard routing is claimed here.
       await desktop.getByRole("button", { name: /^Processes/ }).click();
       // A HoldButton: stopping a process is a held, not a single, click.
       await processRow
