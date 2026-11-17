@@ -20,6 +20,7 @@ const repositoryParam = {
 const repository = repoSummary.shape.name;
 
 export const openChangesGill = defineAppGill({
+  view: "rows",
   id: "open-changes",
   title: "Open Changes",
   source: "changes.list",
@@ -67,6 +68,7 @@ export const openChangesGill = defineAppGill({
 });
 
 export const recentCommitsGill = defineAppGill({
+  view: "rows",
   id: "recent-commits",
   title: "Recent Commits",
   source: "commits.list",

@@ -1,5 +1,32 @@
 # @fungi.computer/bonsai
 
+## 0.11.0
+
+### Minor Changes
+
+- Changes since 0.10.0:
+
+  - feat(gills): declare surface Gills beside row Gills
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.21.0
+  - @fungi.computer/braid@0.5.0
+  - @fungi.computer/gills@0.4.0
+  - @fungi.computer/nacre@0.8.0
+  - @fungi.computer/oyster@0.37.0
+  - @fungi.computer/puffball@0.11.0
+  - @fungi.computer/trellis@0.17.0
+  - @fungi.computer/workflows-wire@0.5.0
+
 ## 0.10.0
 
 ### Minor Changes
