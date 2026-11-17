@@ -1,11 +1,10 @@
 /**
  * How the UI reaches Bonsai's App methods: agar's `app.methods` capability
- * when the host offers it, otherwise the admitted App backend. The host attributes every call
- * to the signed-in person.
+ * through the host's admitted method route. Only the host attributes a call.
  */
 import { appsOpen, type AppRoleChoice } from "@fungi.computer/agar/apps";
 import { AppError, type AppRoot } from "@fungi.computer/agar";
-import { appBackend, appMethods } from "@fungi.computer/agar/backend";
+import { appMethods } from "@fungi.computer/agar/backend";
 import type * as z from "zod";
 import { errorBody, jsonValue, type JsonValue } from "../shared/contract.js";
 import {
@@ -84,18 +83,13 @@ export async function callMethod<S extends z.ZodType>(
 ): Promise<z.infer<S>> {
   if (connection === null)
     throw new ApiError(503, "Open Bonsai from an App host such as Oyster");
-  // Typed method calls let the host apply each method's effect (public
-  // visitors may call read methods); hosts without them get the backend.
+  // The host applies each method's effect and supplies caller identity.
   const capabilities = connection.capabilities;
   let result;
   try {
-    result = capabilities.has(appMethods)
-      ? await capabilities
-          .require(appMethods)
-          .call(method, JSON.stringify(input))
-      : await capabilities
-          .require(appBackend)
-          .request(JSON.stringify({ method, input }));
+    result = await capabilities
+      .require(appMethods)
+      .call(method, JSON.stringify(input));
   } catch (error) {
     if (error instanceof AppError && error.code === "CAPABILITY_DENIED")
       throw new ApiError(403, "Sign in to this Oyster to do that");

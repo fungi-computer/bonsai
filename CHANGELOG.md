@@ -1,5 +1,27 @@
 # @fungi.computer/bonsai
 
+## 0.10.0
+
+### Minor Changes
+
+- Changes since 0.9.14:
+
+  - feat(apps): require one host-derived caller scope
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.20.0
+  - @fungi.computer/oyster@0.36.0
+  - @fungi.computer/puffball@0.10.0
+  - @fungi.computer/trellis@0.16.0
+  - @fungi.computer/braid@0.4.24
+  - @fungi.computer/nacre@0.7.2
+  - @fungi.computer/workflows-wire@0.4.24
+
 ## 0.9.14
 
 ### Patch Changes
