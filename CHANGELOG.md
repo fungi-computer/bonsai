@@ -1,5 +1,16 @@
 # @fungi.computer/bonsai
 
+## 0.11.5
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/oyster@0.39.0
+  - @fungi.computer/trellis@0.19.0
+  - @fungi.computer/braid@0.5.4
+  - @fungi.computer/workflows-wire@0.5.4
+
 ## 0.11.4
 
 ### Patch Changes
