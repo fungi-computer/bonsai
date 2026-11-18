@@ -11,7 +11,18 @@ on your own Cloudflare account. Its repositories live in Cloudflare Artifacts,
 so a repository per agent is cheap. To try Oyster without a Cloudflare account,
 [run it locally](https://docs.fungi.computer/guides/run-your-own-oyster/#run-it-on-your-laptop).
 
-## What you can do
+## Quick start
+
+Bonsai runs inside Oyster, so the quickest check from a checkout is to build it:
+
+```sh
+pnpm --filter @fungi.computer/bonsai build
+```
+
+That produces the App's built files. To use Bonsai for real, see
+[Get it](#get-it).
+
+## Common tasks
 
 - **Give every agent its own fork.** `repos.fork` makes one in a single call,
   and the agent clones it through Oyster's git door with its own key. It never
@@ -39,7 +50,9 @@ so a repository per agent is cheap. To try Oyster without a Cloudflare account,
 
 <img alt="Bonsai on a phone in the light theme: the network graph above the live feed" src="docs/media/overview-phone.png" width="300">
 
-## Get it
+## Reference
+
+### Get it
 
 Bonsai installs with the other starter Apps. On a deployed Oyster (see the
 [Oyster quick start](https://github.com/fungi-computer/oyster#deploy-to-cloudflare)),
@@ -63,7 +76,7 @@ curl -X PUT -H "Authorization: Bearer $OYSTER_OWNER_KEY" -H 'content-type: appli
   -d '{"visibility":"public"}' $OYSTER_URL/api/installations/bonsai/visibility
 ```
 
-## Put agents to work
+### Put agents to work
 
 Create a key for each agent. Oyster shows it once; its `name` is also its id, so
 a fork is always `<repo>--<name>`. These grants let the key use every App on
@@ -90,7 +103,7 @@ git -c http.extraHeader="Authorization: Bearer $KEY" \
 `scripts/agent.sh <name> <repo> "<task>"` does all of that and starts a coding
 agent in the clone. It uses Codex by default; set `AGENT_CMD` to use another.
 
-## Webhooks
+### Webhooks
 
 ```sh
 curl -X POST -H "Authorization: Bearer $OYSTER_OWNER_KEY" -H 'content-type: application/json' \
@@ -106,7 +119,7 @@ event types are `git.push`, `git.fork`, `change.opened`, `change.merged`,
 retried after 10 s, 1 min, 5 min, 30 min and 2 h;
 `GET /api/webhooks/<id>/deliveries` lists the attempts.
 
-## Build and install Apps
+### Build and install Apps
 
 Bonsai also edits the other Apps on your Oyster. `apps.fork` copies an installed
 App's source into a new Bonsai repository you own. Push your changes to it, then
@@ -128,7 +141,7 @@ your forks with `--repositories <base URL>` and `--ref <branch or tag>`. The
 installer reads all seven starter Apps from that base, so fork them under one
 account.
 
-## Make a repository an App
+### Make a repository an App
 
 On a standalone Oyster, open the repository's **Settings → Make this an App**.
 The owner-only `apps.register({ repo })` call reads the committed main root's
@@ -159,8 +172,9 @@ remembered browser job ID is required. No recorded job returns `null`, not an
 invented success or failure. Workflows still poll their specific job with
 `apps.buildStatus({ jobId })`; that call is Pending until build and automatic
 installation settle. These are two current selectors for different callers. A
-local-only Computer is not a build backend and returns typed `no_backend`. This
-flow does not deploy a host or implement a separate consent ledger.
+local-only Computer is not a build backend, so the build is refused with a "no
+backend" error. This flow does not deploy a host or implement a separate consent
+ledger.
 
 The retained Trellis **Build on merge** template is requested through the
 Workflows capability by Bonsai's host-attested accepted-main lifecycle, with the
@@ -181,7 +195,7 @@ request; Bonsai declares that read operation rather than bypassing the host's
 check. Updated declarations must go through the ordinary owner-consent path. Old
 App-origin installation remains refused.
 
-## Agent tools
+### Agent tools
 
 Every method is `POST $OYSTER_URL/apps/bonsai/methods/<name>` with a JSON body
 and a key, and the same methods reach agents through Oyster's MCP endpoint; see
@@ -198,7 +212,7 @@ Bonsai's own UI uses the same API.
 | Insights     | `insights.code`, `insights.layout.get`, `insights.layout.save`                                                                                                                   |
 | Apps (owner) | `apps.register`, `apps.fork`, `apps.startBuildWorkflow`, `apps.buildWorkflowRuns`, `apps.buildWorkflowRun`, `apps.build`, `apps.buildStatus`, `apps.verifyBuild`, `apps.install` |
 
-## How it is built
+### How it is built
 
 Bonsai is an App on Oyster. Oyster serves its UI in a sandboxed frame, runs its
 backend as a Durable Object with its own SQLite, and grants it only the two
@@ -222,7 +236,7 @@ browsing a repository makes no Git calls once its copies are warm.
 | Contracts   | `shared/`            | Response shapes and the event envelope (`verifyHook`)  |
 | UI          | `web/`               | React; the network graph is `web/network-graph.tsx`    |
 
-## Build and check
+### Build and check
 
 ```sh
 pnpm install
@@ -244,7 +258,7 @@ pnpm seed:demo --origin $OYSTER_URL \
 
 A completed rerun checks the three outcomes without making new commits.
 
-## License
+### License
 
 MIT. See [LICENSE](LICENSE).
 
