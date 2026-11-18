@@ -1,5 +1,22 @@
 # @fungi.computer/bonsai
 
+## 0.11.8
+
+### Patch Changes
+
+- Changes since 0.11.7:
+
+  - fix(trellis): give run-status fixtures the run input S5 added to statusReply
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/braid@0.6.0
+  - @fungi.computer/oyster@0.41.0
+  - @fungi.computer/trellis@0.20.0
+  - @fungi.computer/workflows-wire@0.6.0
+
 ## 0.11.7
 
 ### Patch Changes
