@@ -1,5 +1,13 @@
 # @fungi.computer/bonsai
 
+## 0.11.30
+
+### Patch Changes
+
+- Updated dependencies
+  - @fungi.computer/oyster@0.50.0
+  - @fungi.computer/trellis@0.23.13
+
 ## 0.11.29
 
 ### Patch Changes
