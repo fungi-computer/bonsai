@@ -230,7 +230,7 @@ export function ChangePage({ repo, number }: { repo: string; number: number }) {
                     change.head,
                   )
                 : sawMerging.current
-                  ? "The merge did not complete. Review the Change and try again."
+                  ? "The merge did not complete: the Change is still open and reported no conflict. Review it before merging again."
                   : outcome
             : outcome;
   const perform = async (action: "merge" | "approve" | "close") => {

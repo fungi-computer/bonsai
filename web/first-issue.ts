@@ -1,5 +1,27 @@
-import { fileContent, fileSaveResult } from "@fungi.computer/agar/roles/files";
+import {
+  fileContent,
+  fileSaveResult,
+  type FileSaveResult,
+} from "@fungi.computer/agar/roles/files";
 import { callMethod, editInFilesEditor, filesEditor } from "./transport.js";
+
+const saveReasons = {
+  branch_missing: "the branch no longer exists",
+  access_changed: "your access to it changed",
+  sync_failed: "the save could not be synced to the branch",
+  permanent_material: "the file holds material that can never be saved",
+  "not-source-writer": "you cannot write to this Source",
+  "background-unavailable": "background saving is unavailable",
+} as const;
+
+/** Why a save that did not land did not land, in plain words. */
+function saveRefusal(
+  result: Exclude<FileSaveResult, { kind: "saved" | "synced" }>,
+): string {
+  return result.kind === "conflict"
+    ? "the file changed while it was being created"
+    : saveReasons[result.reason];
+}
 
 export const firstIssuePath = "issues/general/01-first-issue.md";
 
@@ -57,7 +79,9 @@ Add any details that will help someone understand the issue.
       fileSaveResult,
     );
     if (result.kind !== "saved" && result.kind !== "synced")
-      throw new Error("The issue could not be created. Try again.");
+      throw new Error(
+        `The issue could not be created: ${saveRefusal(result)}.`,
+      );
   }
   await editInFilesEditor(repo, branch, firstIssuePath);
 }
