@@ -1,6 +1,6 @@
 import {
   runReply,
-  statusReply,
+  hostStatusReply,
   runsReplySchema,
 } from "@fungi.computer/workflows-wire";
 import {
@@ -301,7 +301,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       effect: "read",
       requires: ["workflow.run"],
       input: z.strictObject({ runId: z.string().min(1).max(256) }),
-      output: statusReply,
+      output: hostStatusReply,
       handler: async (input, context: BonsaiMethodContext, caller) => {
         if (caller.role !== "owner")
           throw new AppMethodRefusal("forbidden", "Owner only");
@@ -310,7 +310,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
             "unavailable",
             "Workflow access is not granted",
           );
-        return statusReply.parse(
+        return hostStatusReply.parse(
           await context.env.WORKFLOWS.graphStatus(input),
         );
       },

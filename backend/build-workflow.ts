@@ -9,7 +9,6 @@ import type { GraphStartRequest } from "@fungi.computer/braid/runtime";
 import {
   repositoryWorkflowSourceSchema,
   runReply,
-  statusReply,
   runsReplySchema,
 } from "@fungi.computer/workflows-wire";
 import { AppMethodRefusal } from "@fungi.computer/agar/backend";
@@ -31,9 +30,7 @@ export type BuildWorkflowBindings = Readonly<{
       workflowId?: string;
     }): Promise<ReturnType<typeof runsReplySchema.parse>>;
     runGraph(input: GraphStartRequest): Promise<BuildWorkflowRunReply>;
-    graphStatus(input: {
-      runId: string;
-    }): Promise<ReturnType<typeof statusReply.parse>>;
+    graphStatus(input: { runId: string }): Promise<typeof S.Json.Type>;
   }>;
 }>;
 
