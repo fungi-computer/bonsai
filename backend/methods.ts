@@ -251,6 +251,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Make this repository an App using its main commit's package.json build recipe. Owner only; does not build or install it.",
       effect: "write",
+      label: "Make this repository an App",
       requires: ["git.repository"],
       input: appRegistrationInput,
       output: appRegistration,
@@ -271,6 +272,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Build, verify and install this repository through the published Workflow. Owner only.",
       effect: "write",
+      label: "Build and install this App",
       requires: ["git.repository", "workflow.run", "workflow.publish"],
       input: appBuildWorkflowInput,
       output: runReply,
@@ -317,6 +319,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Build an App's registered source at one exact commit on this Oyster's Computer; the job keeps running after this call returns. Owner only.",
       effect: "write",
+      label: "Build this App",
       // The host scopes APPS.build to a method that declares the operation's
       // own requirements; the owner check below still gates every call.
       requires: ["git.repository", "computer.execute"],
@@ -441,6 +444,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Install a built Release at an installation id, or switch an already-live one onto it. Owner only.",
       effect: "write",
+      label: "Install this App",
       pending: true,
       // The host grants its APPS operation only under these approvals.
       requires: ["git.repository", "computer.execute"],
@@ -496,6 +500,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
     "insights.layout.save": defineAppMethod({
       description: "Save the caller's repository insight layout.",
       effect: "write",
+      label: "Save your insight layout",
       requires: [],
       input: z.strictObject({ repo, tiles: insightLayout }),
       output: savedLayout,
@@ -572,6 +577,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
     "repos.create": defineAppMethod({
       description: "Create a canonical repository. People only.",
       effect: "write",
+      label: "Create a repository",
       requires: ["git.repository"],
       input: z.strictObject({
         name: z.string().regex(repoNamePattern),
@@ -587,6 +593,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Delete a repository and its provider content. Owner only; retry-safe.",
       effect: "write",
+      label: "Delete this repository",
       requires: ["git.repository"],
       input: z.strictObject({ repo: gitRepositoryNameSchema }),
       output: repositoryDeletion,
@@ -597,6 +604,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Give the caller its own fork of a canonical repository (returns the existing one if present). Push work there, then ask a person to merge.",
       effect: "write",
+      label: "Fork this repository",
       requires: ["git.repository"],
       input: z.strictObject({ repo }),
       output: repoSummary,
@@ -607,6 +615,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Fork an App's published source into its own Team-owned App: a new Bonsai repository the owner edits and merges, registered as that App's build source. Owner only.",
       effect: "write",
+      label: "Fork this App",
       // It records the fork as a Bonsai repository in this installation's Git.
       requires: ["git.repository"],
       input: z.strictObject({
@@ -717,6 +726,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Save bounded text as a private member row with revision CAS; eligible edits sync in the background.",
       effect: "write",
+      label: "Save this file",
       requires: ["git.repository"],
       input: fileSaveInput,
       output: fileSaveResult,
@@ -734,6 +744,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Retry eligible failed edits and report this member's saved-file status; background sync owns Git work.",
       effect: "write",
+      label: "Sync your saved files",
       requires: ["git.repository"],
       input: z.strictObject({}),
       output: fileSyncResult,
@@ -748,6 +759,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Discard only this caller's saved file revision and reload Git's text.",
       effect: "write",
+      label: "Discard your saved file changes",
       requires: ["git.repository"],
       input: fileDiscardInput,
       output: fileDiscardResult,
@@ -843,6 +855,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Open a proposal from your source branch; pushes of new fork work also open Changes.",
       effect: "write",
+      label: "Open a change proposal",
       requires: ["git.repository"],
       input: z.strictObject({
         repo,
@@ -864,6 +877,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Approve the exact proposed head if you did not open or author it, or as your Team's only member. Agents report reviews as checks.",
       effect: "write",
+      label: "Approve this change",
       requires: ["git.repository"],
       input: z.strictObject({
         repo,
@@ -883,6 +897,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Continue this member's pending writes after fresh host admission.",
       effect: "write",
+      label: "Sync your pending changes",
       // The continuation covers every write's requirements (apps.build's
       // computer.execute included); it only replays queued Git writes.
       requires: [
@@ -900,6 +915,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "A person maintainer merges the exact reviewed head; eligible Merge counts as approval. Failing or pending checks block it.",
       effect: "write",
+      label: "Merge this change",
       requires: ["git.repository"],
       input: z.strictObject({
         repo,
@@ -926,6 +942,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Request checks at this head; the emitted event ID is the real attempt identity for every report from that trigger.",
       effect: "write",
+      label: "Request checks on this change",
       requires: ["git.repository"],
       input: z.strictObject({
         repo,
@@ -946,6 +963,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
       description:
         "Report a check for the triggering Change event ID. Use its actual eventId as attemptId; runUrl is optional and supplied only for a real run link. Old attempts and conflicting terminal reports settle without overwriting.",
       effect: "write",
+      label: "Report a check result",
       requires: ["git.repository"],
       input: z.strictObject({
         repo,
@@ -969,6 +987,7 @@ const definition = defineAppBackend<BonsaiMethodContext>({
     "changes.close": defineAppMethod({
       description: "Close your proposal or a proposal you maintain.",
       effect: "write",
+      label: "Close this change",
       requires: ["git.repository"],
       input: z.strictObject({ repo, number: z.number().int().positive() }),
       output: policyDecision,

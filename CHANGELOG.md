@@ -1,5 +1,27 @@
 # @fungi.computer/bonsai
 
+## 0.12.0
+
+### Minor Changes
+
+- Changes since 0.11.44:
+
+  - feat(agar): approval cards read a method's own short label
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.27.0
+  - @fungi.computer/oyster@0.56.0
+  - @fungi.computer/puffball@0.15.0
+  - @fungi.computer/trellis@0.28.0
+  - @fungi.computer/braid@0.6.8
+  - @fungi.computer/nacre@0.9.1
+  - @fungi.computer/workflows-wire@0.7.8
+
 ## 0.11.44
 
 ### Patch Changes
